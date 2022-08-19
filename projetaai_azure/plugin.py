@@ -7,7 +7,7 @@ warnings.filterwarnings("ignore",
 
 from projetaai_azure.cli.run import create_job  # noqa: E402
 from click import Command  # noqa: E402
-from kedro_projetaai.cli import ProjetaAiCLIPlugin  # noqa: E402
+from kedro_projetaai.cli import ProjetaAiCLIPlugin, CIStarterSpec  # noqa: E402
 from projetaai_azure.cli.pipeline import (  # noqa: E402
     create_draft, publish, schedule
 )
@@ -51,3 +51,14 @@ class AzureCLI(ProjetaAiCLIPlugin):
             Command: Job creation command
         """
         return create_job
+
+
+AZURE_STARTERS_REPO = ('git+https://github.com/ProjetaAi/'
+                       'projetaai-azure-starters.git')
+
+ci_starters = [
+    CIStarterSpec(
+        alias="azure-pipelines",
+        template_path=AZURE_STARTERS_REPO,
+        directory="ci/azure-pipelines")
+]
