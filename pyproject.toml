@@ -1,6 +1,6 @@
 [build-system]
 build-backend = "setuptools.build_meta"
-requires = ["setuptools>=45.0", "wheel"]
+requires = ["setuptools>=54.0", "wheel"]
 
 [tool.pytest.ini_options]
 addopts = """
