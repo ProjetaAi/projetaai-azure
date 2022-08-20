@@ -453,11 +453,10 @@ class Authenticator(ConverterStep):
         Returns:
             List[_AuthSubscription]: List of subscriptions
         """
-        self.log(
-            'info', 'Not logged yet, follow the instruction below in '
-            'order to perform login'
-        )
-        return self.system('az login --use-device-code', json=True)
+        self.log('error', 'None of the logged subscriptions are valid, run '
+                 '`az login` or `az login --use-device-code` with a valid '
+                 'account and try again')
+        raise Exception('No valid subscriptions')
 
     def _get_valid_subscription(
         self, subscriptions: List[_AuthSubscription]
