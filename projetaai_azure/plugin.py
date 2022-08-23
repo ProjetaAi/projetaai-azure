@@ -1,6 +1,7 @@
 """Azure plugin for ProjetaAi."""
 from typing import List
 import warnings
+from projetaai_azure.azureml.setup import install_azml_cli
 from projetaai_azure.cli.credential import credential_create
 warnings.filterwarnings("ignore",
                         category=DeprecationWarning)  # fixes azureml warnings
@@ -11,6 +12,9 @@ from kedro_projetaai.cli import ProjetaAiCLIPlugin, CIStarterSpec  # noqa: E402
 from projetaai_azure.cli.pipeline import (  # noqa: E402
     create_draft, publish, schedule
 )
+
+
+install_azml_cli()
 
 
 class AzureCLI(ProjetaAiCLIPlugin):
