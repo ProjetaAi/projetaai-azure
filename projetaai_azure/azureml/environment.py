@@ -169,7 +169,7 @@ class EnvironmentCreator(ConverterStep):
             str: databricks-connect version compatible with your databricks cluster
         """
 
-        return 'databricks-connect=9.1.21'
+        return 'databricks-connect==9.1.21'
 
     @property
     def docker_azure_cli_install(self):
