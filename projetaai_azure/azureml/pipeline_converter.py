@@ -308,7 +308,7 @@ class PipelineConverter(ConverterStep):
             self._add_step(node, outputs)
 
     def _read_credentials(self) -> dict:
-        return readyml(self.RUN_TEMPLATED_CREDENTIALS_FILEPATH) or {} # MUDEI AQUI
+        return readyml(self.RUN_TEMPLATED_CREDENTIALS_FILEPATH) or {}
 
     def _extract_variables(
         self, templates: Dict[str, Dict[str, str]]
