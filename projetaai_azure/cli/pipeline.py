@@ -13,6 +13,7 @@ from projetaai_azure.azureml.pipeline_converter import (
     PipelineConverter,
 )
 from kedro_projetaai.utils.script import pipe
+from kedro_projetaai.packing import suggestions
 
 from projetaai_azure.azureml.publisher import Publisher
 from projetaai_azure.azureml.scheduler import Scheduler, WeekDays
@@ -36,6 +37,18 @@ class CreateDraftInputs(BasicAzureMLSettingsReader):
     """
 
     @staticmethod
+    def experiment_default(filled: dict) -> str:
+        """Default value for the experiment name.
+
+        Args:
+            filled (dict): The filled arguments.
+
+        Returns:
+            str: The experiment name.
+        """
+        return suggestions.get_experiment_name(filled['project'])
+
+    @staticmethod
     def azure_pipeline_default(filled: dict) -> str:
         """Default value for azure_pipeline.
 
@@ -45,17 +58,10 @@ class CreateDraftInputs(BasicAzureMLSettingsReader):
         Returns:
             str: Default value for azure_pipeline
         """
-        name = filled['project']
-
-        if filled['pipeline'] == '__default__':
-            name += '_default'
-        else:
-            name += '_' + filled['pipeline']
-
-        if filled['experiment'] != filled['project']:
-            name += filled['experiment'].split(filled['project'])[-1]
-
-        return name
+        return suggestions.get_pipeline_name(
+            project=filled['project'],
+            pipeline=filled['pipeline'],
+            experiment=filled['experiment'])
 
     @property
     def argv_requirements(self) -> List[_ArgvSpecification]:
@@ -74,9 +80,7 @@ class CreateDraftInputs(BasicAzureMLSettingsReader):
             {
                 'target': 'experiment',
                 'type': str,
-                'default': lambda _: '',
-                'preparator': lambda x, filled:
-                f'{filled["project"]}{f"_{x}" if x else ""}',
+                'default': self.experiment_default,
                 'help': 'Experiment name. Defaults to project name.'
             },
             {
