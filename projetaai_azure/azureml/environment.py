@@ -127,7 +127,69 @@ class EnvironmentCreator(ConverterStep):
         Returns:
             str: Docker image url
         """
+        
         return 'mcr.microsoft.com/azureml/openmpi4.1.0-ubuntu20.04:20220516.v1'
+    
+    @property
+    def docker_root_user(self) -> str:
+        """Returns user used to configure the docker image.
+
+        Returns:
+            str: Docker root use setup
+        """
+
+        return 'root:root'
+    
+    @property
+    def aux_folder_in_docker(self):
+        """Return aux folder path to be created in docker.
+
+        Returns:
+            str: Folder path that is not created because the image used is minimal
+            and this path is needed to install jdk
+        """
+
+        return '/usr/share/man/man1/'
+
+    @property
+    def docker_jdk_version(self):
+        """Return JAVA jdk version to be installed.
+
+        Returns: 
+            str: java jdk version to be installed using apt-get
+        """
+
+        return 'openjdk-8-jre'
+
+    @property
+    def docker_databricks_connect_version(self):
+        """Return databricks-connect version to be installed.
+
+        Returns:
+            str: databricks-connect version compatible with your databricks cluster
+        """
+
+        return 'databricks-connect==9.1.21'
+
+    @property
+    def docker_azure_cli_install(self):
+        """Return azure cli and extension needed.
+
+        Returns:
+            str: azure-cli and azure extension needed
+        """
+
+        return 'azure-cli && az extension add --name azure-cli-ml'
+
+    @property   
+    def docker_java_home_setup(self):
+        """Return java_home path.
+
+        Returns:
+            str: java_home path
+        """
+
+        return 'JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java'
 
     @property
     def base_environment_name(self) -> str:
@@ -158,8 +220,26 @@ class EnvironmentCreator(ConverterStep):
             ]
         }
 
+    def _check_spark_conf_file_exists(self) -> bool:
+
+       return (Path.cwd()/"src"/"conf"/"base"/"spark.yml").exists()
+
     def _build_dockerfile(self) -> List[str]:
-        return [f'FROM {self.docker_image}']
+
+        if self._check_spark_conf_file_exists():
+            docker_file = [
+                f'FROM {self.docker_image} \n',
+                f'USER {self.docker_root_user} \n',
+                f'RUN mkdir -p {self.aux_folder_in_docker} \n',
+                f'RUN apt-get update && apt-get install -y {self.docker_jdk_version} \n',
+                f'RUN pip install {self.docker_databricks_connect_version} \n',
+                f'RUN pip install {self.docker_azure_cli_install} \n',
+                f'RUN export {self.docker_java_home_setup}'
+                ]
+        else:
+            docker_file  = [f'FROM {self.docker_image}']
+
+        return docker_file
 
     def _build_azureml_environment(self) -> _EnvAzureMLEnvironment:
         return {'name': self.environment_name, 'python': {}}
