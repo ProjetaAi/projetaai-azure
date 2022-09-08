@@ -1,8 +1,8 @@
 """Manages azure credentials."""
 import click
-
 from projetaai_azure.utils.constants import CWD
-from projetaai_azure.utils.io import readyml, writeyml
+from kedro_projetaai.utils.io import upwriteyml
+from kedro_projetaai.utils.iterable import mergedicts
 
 
 @click.command
@@ -14,31 +14,40 @@ from projetaai_azure.utils.io import readyml, writeyml
 def credential_create(name: str, datastore: str, account: str):
     """Creates an Azure Blob Gen2 credential."""
     for level in ['base', 'local']:
-        filepath = str(CWD / 'conf' / level / 'credentials.yml')
-        try:
-            credentials = readyml(filepath)
-            credentials['azure'] = credentials.get('azure', {})
-            credentials['azure']['storage'] = credentials['azure'].get(
-                'storage', {})
-        except Exception:
-            credentials = {'azure': {'storage': {}}}
+        filepath = CWD / 'conf' / level / 'credentials.yml'
 
         upper_name = name.upper()
-        credentials['azure']['storage'][name] = {
-            **({'datastore': datastore} if level == 'base' else {}),
-            'credential': {
-                'account_name': account,
-                'anon': False,
-                **(
-                    {
-                        'client_id': '${%s_CLIENT_ID}' % upper_name,
-                        'client_secret': '${%s_CLIENT_SECRET}' % upper_name,
-                        'tenant_id': '${%s_SUBSCRIPTION_ID}' % upper_name,
+        credentials = {
+            'azure': {
+                'storage': {
+                    name: {
+                        'credential': {
+                            'account_name': account,
+                            'anon': False,
+                        }
                     }
-                    if level == 'base' else {}
-                )
+                }
             }
         }
 
-        writeyml(filepath, credentials)
+        if level == 'base':
+            credentials = mergedicts(credentials, {
+                'azure': {
+                    'storage': {
+                        name: {
+                            'datastore': datastore,
+                            'credential': {
+                                'client_id':
+                                    '${%s_CLIENT_ID}' % upper_name,
+                                'client_secret':
+                                    '${%s_CLIENT_SECRET}' % upper_name,
+                                'tenant_id':
+                                    '${%s_SUBSCRIPTION_ID}' % upper_name,
+                            }
+                        }
+                    }
+                }
+            })
+
+        upwriteyml(str(filepath), credentials)
         click.echo(f'Updated "{filepath}"')
