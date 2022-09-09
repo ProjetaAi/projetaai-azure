@@ -185,12 +185,23 @@ class EnvironmentCreator(ConverterStep):
         """
         return self.experiment
 
+    @property
+    def pip(self) -> str:
+        """Returns the pip version.
+
+        Returns:
+            str: Pip version
+        """
+        return '20.1'  # required by azureml-pipeline
+
     def _build_condafile(self) -> _EnvCondaDependencies:
         return {
             'name': self.environment_name,
             'channels': [self.conda_channel],
             'dependencies': [
-                f'python={self.python}', 'pip', {
+                f'python={self.python}',
+                f'pip=={self.pip}',
+                {
                     'pip': self.requirements_lines
                 }
             ]
@@ -211,6 +222,7 @@ class EnvironmentCreator(ConverterStep):
                 'USER root:root',
                 'RUN mkdir -p /usr/share/man/man1',
                 f'RUN apt-get update && apt-get install -y {self.docker_jdk}',
+                f'RUN python -m pip install pip=={self.pip}',
                 f'RUN pip install {self.docker_databricks_connect}',
                 f'RUN export JAVA_HOME={self.docker_java_home}'
             ]
