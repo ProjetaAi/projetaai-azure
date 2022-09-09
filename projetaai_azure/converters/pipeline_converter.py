@@ -22,8 +22,6 @@ from typing import (
     TypedDict,
     Union,
 )
-from jinja2 import FileSystemLoader
-from jinja2.nativetypes import NativeEnvironment
 from kedro.pipeline import Pipeline
 from kedro.pipeline.node import Node
 import sys
@@ -308,13 +306,7 @@ class PipelineConverter(ConverterStep):
 
     def _build_run(self) -> str:
         """Creates the kedro caller script."""
-        replacements = {
-            'code_archive': self.COMPRESSED_PROJECT_FILENAME,
-        }
-        loader = FileSystemLoader(ConverterStep.TEMPLATES_FOLDER)
-        env = NativeEnvironment(loader=loader)
-        template = env.get_template(self.RUN_FILENAME)
-        return template.render(**replacements)
+        return (Path(__file__).parent / self.RUN_FILENAME).read_text()
 
     def _build_pipeline(self) -> _PipePipeline:
         self._add_steps()
@@ -424,7 +416,6 @@ class PipelineConverter(ConverterStep):
         """
         self._prepare_folder()
         self.save()
-        assert False
         self.submit()
         return {'pipeline_id': self.pipeline_id}
 

@@ -1,8 +1,8 @@
 """Azure job execution scripts."""
 from dataclasses import dataclass
 from typing import Any
-from projetaai_azure.azureml.config import Authenticator
-from projetaai_azure.azureml.job_creator import JobCreator
+from projetaai_azure.converters.config import Authenticator
+from projetaai_azure.converters.job_creator import JobCreator
 from kedro_projetaai.utils.script import pipe
 from projetaai_azure.cli.pipeline import CreateDraftInputs
 

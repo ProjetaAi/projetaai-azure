@@ -1,13 +1,13 @@
 """Pipeline management scripts."""
 from dataclasses import dataclass
 from typing import Any, List, get_args
-from projetaai_azure.azureml.config import (
+from projetaai_azure.converters.config import (
     _ArgvSpecification,
     Authenticator,
     BasicAzureMLSettingsReader,
 )
-from projetaai_azure.azureml.environment import EnvironmentCreator
-from projetaai_azure.azureml.pipeline_converter import (
+from projetaai_azure.converters.environment import EnvironmentCreator
+from projetaai_azure.converters.pipeline_converter import (
     Cleaner,
     FolderPreparator,
     PipelineConverter,
@@ -15,8 +15,8 @@ from projetaai_azure.azureml.pipeline_converter import (
 from kedro_projetaai.utils.script import pipe
 from kedro_projetaai.packing import suggestions
 
-from projetaai_azure.azureml.publisher import Publisher
-from projetaai_azure.azureml.scheduler import Scheduler, WeekDays
+from projetaai_azure.converters.publisher import Publisher
+from projetaai_azure.converters.scheduler import Scheduler, WeekDays
 from projetaai_azure.utils.iterable import unique
 
 
