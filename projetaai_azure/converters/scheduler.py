@@ -17,7 +17,7 @@ from typing import (
     cast,
 )
 
-from projetaai_azure.azureml.step import ConverterStep
+from projetaai_azure.converters.step import ConverterStep
 
 from azureml.core import Workspace
 from azureml.pipeline.core import Schedule, ScheduleRecurrence

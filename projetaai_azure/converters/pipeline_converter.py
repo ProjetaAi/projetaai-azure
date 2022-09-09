@@ -29,9 +29,8 @@ from kedro.pipeline.node import Node
 import sys
 import shutil
 
-from projetaai_azure.azureml.step import ConverterStep
+from projetaai_azure.converters.step import ConverterStep
 from projetaai_azure.utils.io import (
-    readyml,
     writejson,
     writestr,
     writeyml,
@@ -307,32 +306,9 @@ class PipelineConverter(ConverterStep):
         for node in pipeline.nodes:
             self._add_step(node, outputs)
 
-    def _read_credentials(self) -> dict:
-        return readyml(self.RUN_TEMPLATED_CREDENTIALS_FILEPATH) or {}
-
-    def _extract_variables(
-        self, templates: Dict[str, Dict[str, str]]
-    ) -> Dict[str, Dict[str, str]]:
-        return {
-            credential['datastore']: {
-                attr: re.search(r'^\${(.+)}$', variable).group(1)
-                for attr, variable in credential['credential'].items()
-                if isinstance(variable, str) and variable.startswith('${')
-                and variable.endswith('}')
-            }
-            for credential in templates.values()
-        }
-
-    def _read_credential_templates(self) -> dict:
-        templates = self._read_credentials()\
-            .get(self.AZURE_SECTION, {})\
-            .get(self.STORAGE_SECTION, {})
-        return self._extract_variables(templates)
-
     def _build_run(self) -> str:
         """Creates the kedro caller script."""
         replacements = {
-            'credentials': self._read_credential_templates(),
             'code_archive': self.COMPRESSED_PROJECT_FILENAME,
         }
         loader = FileSystemLoader(ConverterStep.TEMPLATES_FOLDER)
@@ -448,6 +424,7 @@ class PipelineConverter(ConverterStep):
         """
         self._prepare_folder()
         self.save()
+        assert False
         self.submit()
         return {'pipeline_id': self.pipeline_id}
 

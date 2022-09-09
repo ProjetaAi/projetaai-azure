@@ -8,7 +8,7 @@ Note:
 """
 from __future__ import print_function, unicode_literals, annotations
 from dataclasses import dataclass, field
-from projetaai_azure.azureml.step import ConverterStep
+from projetaai_azure.converters.step import ConverterStep
 from azureml.pipeline.core import PipelineDraft
 from azureml.core import Workspace
 

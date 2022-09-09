@@ -25,7 +25,7 @@ from azure.cli.core._profile import Profile
 from typing_extensions import Literal, NotRequired
 
 import click
-from projetaai_azure.azureml.step import ConverterStep
+from projetaai_azure.converters.step import ConverterStep
 from azureml.core import Workspace
 
 from kedro_projetaai.utils.script import Step
