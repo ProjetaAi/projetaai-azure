@@ -1,9 +1,13 @@
 """DataStore management classes."""
+from logging import getLogger
 from azureml.core import (
     Workspace,
     Datastore as _Datastore,
 )
 from typing import TypedDict
+
+
+logger = getLogger(__name__)
 
 
 class ServicePrincipal(TypedDict):
@@ -60,6 +64,7 @@ class DataStore:
         Returns:
             ServicePrincipal: Service principal credentials dict.
         """
+        logger.info(f'Getting service principal from "{datastore}"')
         ds = _Datastore.get(self.workspace, datastore)
 
         if not self._validate(ds):

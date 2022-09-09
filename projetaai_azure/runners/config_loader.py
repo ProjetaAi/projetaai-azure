@@ -103,5 +103,7 @@ class AzureConfigLoader(TemplatedConfigLoader):
         Returns:
             Dict[str, Any]: Configuration dictionary.
         """
-        formatted = super().get(*patterns)
-        return self._format(formatted)
+        raw = super().get(*patterns)
+        formatted = self._format(raw)
+        print(formatted)
+        return formatted

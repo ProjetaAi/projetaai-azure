@@ -1,6 +1,10 @@
 """Keyvault access classes."""
+from logging import getLogger
 from typing import Mapping, Any, Iterable
 from azureml.core import Workspace, Keyvault as _Keyvault
+
+
+logger = getLogger(__name__)
 
 
 class Keyvault(Mapping):
@@ -36,6 +40,7 @@ class Keyvault(Mapping):
         Returns:
             Any: Secret value.
         """
+        logger.info(f'Getting secret "{secret}"')
         return self.keyvault.get_secret(secret)
 
     def __len__(self) -> int:
