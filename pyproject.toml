@@ -1,6 +1,53 @@
+[tool.poetry]
+name = "projetaai-azure"
+version = "0.1.0b0"
+description = "Enables Azure services integration with ProjetaAi/Kedro"
+authors = ["Ipiranga"]
+license = "Apache"
+readme = "README.md"
+packages = [{include = "projetaai_azure"}]
+
+[tool.poetry.plugins."projetaai.cli"]
+azure = "projetaai_azure.plugin:AzureCLI"
+[tool.poetry.plugins."projetaai.ci"]
+azure = "projetaai_azure.plugin:ci_starters"
+
+[tool.poetry.dependencies]
+python = ">=3.9,<3.10"
+azureml-core = "1.45.0"
+azureml-pipeline-core = "1.45.0"
+azure-cli = "2.36.0"
+kedro = "^0.18.2"
+click = "^8.1.3"
+Jinja2 = "^3.1.2"
+PyYAML = "^6.0"
+requirements-parser = "^0.5.0"
+typing-extensions = "^4.3.0"
+tomli = "^2.0.1"
+pandas = "^1.4.4"
+pyarrow = "^9.0.0"
+azure-ai-ml = "0.1.0b4"
+universal-pathlib = "^0.0.20"
+pywin32 = {version="^304", markers = "sys_platform == 'win32'"}
+adlfs = "^2022.9.1"
+kedro-projetaai = {git = "https://github.com/ProjetaAi/kedro-projetaai.git", rev = "develop"}
+docker = {git = "https://github.com/gitpushdashf/docker-py.git", rev = "master"}
+
+[tool.poetry.group.dev.dependencies]
+yapf = "^0.32.0"
+pre-commit = "^2.20.0"
+
+[tool.poetry.group.test.dependencies]
+pytest = "^7.1.3"
+pytest-cov = "^3.0.0"
+pytest-mock = "^3.8.2"
+flake8 = "^5.0.4"
+flake8-annotations = "^2.9.1"
+flake8-docstrings = "^1.6.0"
+
 [build-system]
-build-backend = "setuptools.build_meta"
-requires = ["setuptools>=54.0", "wheel"]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
 addopts = """

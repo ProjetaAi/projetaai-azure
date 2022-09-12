@@ -122,6 +122,46 @@ class EnvironmentCreator(ConverterStep):
         return 'conda-forge'
 
     @property
+    def base_environment_name(self) -> str:
+        """Returns the non-experiment environment name.
+
+        Returns:
+            str: Environment name
+        """
+        return self.project
+
+    @property
+    def environment_name(self) -> str:
+        """Returns the environment name.
+
+        Returns:
+            str: Environment name
+        """
+        return self.experiment
+
+    @property
+    def pip(self) -> str:
+        """Returns the pip version.
+
+        Returns:
+            str: Pip version
+        """
+        return '20.1'  # required by azureml-pipeline
+
+    def _build_condafile(self) -> _EnvCondaDependencies:
+        return {
+            'name': self.environment_name,
+            'channels': [self.conda_channel],
+            'dependencies': [
+                f'python={self.python}',
+                f'pip=={self.pip}',
+                {
+                    'pip': self.requirements_lines
+                }
+            ]
+        }
+
+    @property
     def docker_image(self) -> str:
         """Returns the docker image url.
 
@@ -166,46 +206,6 @@ class EnvironmentCreator(ConverterStep):
             str: JAVA_HOME path
         """
         return '/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java'
-
-    @property
-    def base_environment_name(self) -> str:
-        """Returns the non-experiment environment name.
-
-        Returns:
-            str: Environment name
-        """
-        return self.project
-
-    @property
-    def environment_name(self) -> str:
-        """Returns the environment name.
-
-        Returns:
-            str: Environment name
-        """
-        return self.experiment
-
-    @property
-    def pip(self) -> str:
-        """Returns the pip version.
-
-        Returns:
-            str: Pip version
-        """
-        return '20.1'  # required by azureml-pipeline
-
-    def _build_condafile(self) -> _EnvCondaDependencies:
-        return {
-            'name': self.environment_name,
-            'channels': [self.conda_channel],
-            'dependencies': [
-                f'python={self.python}',
-                f'pip=={self.pip}',
-                {
-                    'pip': self.requirements_lines
-                }
-            ]
-        }
 
     def _has_spark_conf_file(self) -> bool:
         return is_databricks_project(Path(self.SOURCE_FOLDER))
