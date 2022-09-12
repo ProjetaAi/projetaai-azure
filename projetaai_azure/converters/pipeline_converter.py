@@ -416,7 +416,6 @@ class PipelineConverter(ConverterStep):
         """
         self._prepare_folder()
         self.save()
-        assert False
         self.submit()
         return {'pipeline_id': self.pipeline_id}
 
