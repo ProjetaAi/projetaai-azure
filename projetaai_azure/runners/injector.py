@@ -7,7 +7,7 @@ import os
 from projetaai_azure.runners.config_loader import (
     AzureConfigLoader
 )
-from kedro.framework.project import PACKAGE_NAME
+import kedro.framework.project as kedro_prj
 from kedro.framework.startup import bootstrap_project
 from projetaai_azure.runners.databricks import configure_databricks_connect
 
@@ -31,13 +31,17 @@ def configure_settings(workspace: Workspace):
     Args:
         workspace (Workspace): The AzureML workspace.
     """
-    settings = importlib.import_module(f"{PACKAGE_NAME}.settings")
+    path = Path.cwd()
+    bootstrap_project(path)
+
+    settings = importlib.import_module(f"{kedro_prj.PACKAGE_NAME}.settings")
     settings.CONFIG_LOADER_CLASS = AzureConfigLoader
     settings.CONFIG_LOADER_ARGS = {
         **getattr(settings, 'CONFIG_LOADER_ARGS', {}),
         'workspace': workspace,
     }
-    bootstrap_project(Path.cwd())
+
+    bootstrap_project(path)
 
 
 def inject():
