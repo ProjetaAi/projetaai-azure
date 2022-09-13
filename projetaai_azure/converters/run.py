@@ -1,14 +1,12 @@
 """AzureML/Kedro runner."""
 from __future__ import annotations
 import os
-from pathlib import Path
 import sys
 import shutil
 from projetaai_azure.converters.pipeline_converter import PipelineConverter
 from projetaai_azure.runners.injector import inject
 from click.testing import CliRunner
 from kedro.framework.cli.project import run
-from kedro.framework.startup import bootstrap_project
 
 
 def unzip_code():
@@ -23,7 +21,6 @@ def set_azureml_environment():
 
 def run_code():
     """Runs ProjetaAI project."""
-    bootstrap_project(Path.cwd())
     runner = CliRunner()
     runner.invoke(run, sys.argv[1:], catch_exceptions=False)
 
