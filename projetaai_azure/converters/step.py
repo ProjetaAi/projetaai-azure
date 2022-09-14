@@ -42,7 +42,7 @@ class ConverterStep(Step):
             exitcode = os.waitstatus_to_exitcode(status)
             if exitcode != 0:
                 raise SystemExit(
-                    f'ERROR: {out}\n\n'
+                    f'ERROR: {cmd.errors}\n\n'
                     f'"{cmdstr}" did not complete'
                 )
 
