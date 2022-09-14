@@ -34,6 +34,7 @@ class CreateDraftInputs(BasicAzureMLSettingsReader):
         pipeline (str): Kedro pipeline name
         azure_pipeline (str): AzureML pipeline name
         experiment (str): AzureML experiment name
+        branch (str): Git branch name
     """
 
     @staticmethod
@@ -46,7 +47,9 @@ class CreateDraftInputs(BasicAzureMLSettingsReader):
         Returns:
             str: The experiment name.
         """
-        return suggestions.get_experiment_name(filled['project'])
+        return suggestions.get_experiment_name(
+            project=filled['project'], branch=filled.get('branch')
+        )
 
     @staticmethod
     def azure_pipeline_default(filled: dict) -> str:
@@ -76,6 +79,17 @@ class CreateDraftInputs(BasicAzureMLSettingsReader):
                 'type': str,
                 'default': lambda _: '__default__',
                 'help': 'Kedro pipeline name. Defaults to "__default__"',
+            },
+            {
+                'target': 'branch',
+                'type': str,
+                'help': (
+                    'Git branch name. If not specified, ProjetaAi will '
+                    'try to infer it from the environment.'
+                    'This option is not required, it is only used to '
+                    'avoid problems with detached branches like in CI/CD'
+                ),
+                'default': lambda _: None
             },
             {
                 'target': 'experiment',
