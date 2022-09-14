@@ -1,8 +1,8 @@
 """A step for AzureML conversion."""
 from __future__ import annotations
-import os
 from pathlib import Path
 import re
+import subprocess
 from typing import Any, ClassVar, Union
 import json as JSON
 from dataclasses import dataclass
@@ -20,6 +20,10 @@ class ConverterStep(Step):
     SOURCE_FOLDER: ClassVar[str] = 'src'
     TEMPLATES_FOLDER: ClassVar[str] = str(Path(__file__).parent / 'templates')
 
+    @staticmethod
+    def _parse_std(std: bytes) -> str:
+        return std.decode().replace('\r', '')
+
     def system(self, *commands: str, json: bool = False) -> Union[None, Any]:
         """Calls system commands.
 
@@ -34,17 +38,17 @@ class ConverterStep(Step):
             Union[None, Any]: json output of the command.
         """
         cmdstr = ' '.join(commands)
-        cmd = os.popen(cmdstr)
-        out = cmd.read()
+        cmd = subprocess.run(cmdstr, shell=True, stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE)
+        out, err, status = (self._parse_std(cmd.stdout),
+                            self._parse_std(cmd.stderr),
+                            cmd.returncode)
 
-        status = cmd.close()
-        if status:
-            exitcode = os.waitstatus_to_exitcode(status)
-            if exitcode != 0:
-                raise SystemExit(
-                    f'ERROR: {cmd.errors}\n\n'
-                    f'"{cmdstr}" did not complete'
-                )
+        if status != 0:
+            raise SystemExit(
+                f'ERROR: {err}\n\n'
+                f'"{cmdstr}" did not complete'
+            )
 
         print(out)
         if json:

@@ -456,7 +456,7 @@ class Authenticator(ConverterStep):
         self.log('error', 'None of the logged subscriptions are valid, run '
                  '`az login` or `az login --use-device-code` with a valid '
                  'account and try again')
-        raise Exception('No valid subscriptions')
+        raise RuntimeError('No valid subscriptions')
 
     def _get_valid_subscription(
         self, subscriptions: List[_AuthSubscription]
