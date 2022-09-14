@@ -33,6 +33,8 @@ from projetaai_azure.utils.io import (
     writestr,
     writeyml,
 )
+from azureml.pipeline.core import PipelineDraft
+from azureml.core import Workspace
 
 sys.path.append(str(Path(getcwd()) / 'src'))
 
@@ -193,6 +195,8 @@ class PipelineConverter(ConverterStep):
     experiment: str
     environment: str
 
+    workspace_instance: Workspace
+
     steps: Dict[str, _PipeStep] = field(init=False, default_factory=dict)
     pipeline_id: str = field(init=False, default=None)
 
@@ -346,13 +350,13 @@ class PipelineConverter(ConverterStep):
 
     def _fetch_pipeline_id(self):
         """Checks if a pipeline draft already exists and sets its id."""
-        pipelines: List[Union[str, _PipeCLIDraft]
-                        ] = self.azml('pipeline', 'list-drafts', json=True)
-        pipeline = [
-            p for p in pipelines
-            if not isinstance(p, str) and p['Name'] == self.azure_pipeline
-        ]
-        self.pipeline_id = pipeline[0]['Id'] if pipeline else None
+        pipes = PipelineDraft.list(self.workspace_instance)
+        for pipe in pipes:
+            if pipe.name == self.azure_pipeline:
+                self.pipeline_id = pipe.id
+                break
+        else:
+            self.pipeline_id = None
 
     def _prepare_folder(self):
         os.mkdir(self.PIPELINE_FOLDER)

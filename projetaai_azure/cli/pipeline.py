@@ -89,7 +89,7 @@ class CreateDraftInputs(BasicAzureMLSettingsReader):
                     'This option is not required, it is only used to '
                     'avoid problems with detached branches like in CI/CD'
                 ),
-                'default': lambda _: None
+                'default': lambda _: suggestions.get_branch_name() or None,
             },
             {
                 'target': 'experiment',
