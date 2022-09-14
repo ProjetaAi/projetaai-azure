@@ -46,7 +46,8 @@ class ConverterStep(Step):
 
         if status != 0:
             raise SystemExit(
-                f'ERROR: {err}\n\n'
+                f'STDOUT:\n{out}\n\n'
+                f'STDERR:\n{err}\n\n'
                 f'"{cmdstr}" did not complete'
             )
 
