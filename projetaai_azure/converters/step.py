@@ -41,7 +41,10 @@ class ConverterStep(Step):
         if status:
             exitcode = os.waitstatus_to_exitcode(status)
             if exitcode != 0:
-                raise SystemExit(f'"{cmdstr}" did not complete')
+                raise SystemExit(
+                    f'ERROR: {out}\n\n'
+                    f'"{cmdstr}" did not complete'
+                )
 
         print(out)
         if json:
