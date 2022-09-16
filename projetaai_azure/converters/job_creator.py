@@ -33,7 +33,7 @@ class JobCreator(ConverterStep):
                 self.pipeline_id = draft.id
                 break
         else:
-            raise RuntimeError('No pipeline draft found to publish')
+            raise RuntimeError('No pipeline draft found to run')
 
     def submit(self):
         """Submit the job to AzureML."""
