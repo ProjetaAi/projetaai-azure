@@ -16,15 +16,12 @@ def credential_create(name: str, datastore: str, account: str):
     for level in ['base', 'local']:
         filepath = CWD / 'conf' / level / 'credentials.yml'
 
-        upper_name = name.upper()
         credentials = {
             'azure': {
                 'storage': {
                     name: {
-                        'credential': {
-                            'account_name': account,
-                            'anon': False,
-                        }
+                        'account_name': account,
+                        'anon': False,
                     }
                 }
             }
@@ -35,15 +32,7 @@ def credential_create(name: str, datastore: str, account: str):
                 'azure': {
                     'storage': {
                         name: {
-                            'datastore': datastore,
-                            'credential': {
-                                'client_id':
-                                    '${%s_CLIENT_ID}' % upper_name,
-                                'client_secret':
-                                    '${%s_CLIENT_SECRET}' % upper_name,
-                                'tenant_id':
-                                    '${%s_SUBSCRIPTION_ID}' % upper_name,
-                            }
+                            'datastore': f'ds::{datastore}',
                         }
                     }
                 }
