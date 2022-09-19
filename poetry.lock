@@ -2291,27 +2291,20 @@ description = "Kedro plugin that adds interfaces for production"
 category = "main"
 optional = false
 python-versions = ">=3.9,<3.10"
-develop = false
 
 [package.dependencies]
-attr = "^0.3.2"
-click = "^8.1.3"
-cookiecutter = "^2.1.1"
-Flask = "^2.2.2"
-Flask-Cors = "^3.0.10"
-flatten-dict = "^0.4.2"
-GitPython = "^3.1.27"
-kedro = "^0.18.2"
-pydantic = "^1.10.2"
-tomli = "^2.0.1"
-typing-extensions = "^4.3.0"
-waitress = "^2.1.2"
-
-[package.source]
-type = "git"
-url = "https://github.com/ProjetaAi/kedro-projetaai.git"
-reference = "working"
-resolved_reference = "f3f0630024df9e53fa5f2bdaabeb0918b078d14d"
+attr = ">=0.3.2,<0.4.0"
+click = ">=8.1.3,<9.0.0"
+cookiecutter = ">=2.1.1,<3.0.0"
+Flask = ">=2.2.2,<3.0.0"
+Flask-Cors = ">=3.0.10,<4.0.0"
+flatten-dict = ">=0.4.2,<0.5.0"
+GitPython = ">=3.1.27,<4.0.0"
+kedro = ">=0.18.2,<0.19.0"
+pydantic = ">=1.10.2,<2.0.0"
+tomli = ">=2.0.1,<3.0.0"
+typing-extensions = ">=4.3.0,<5.0.0"
+waitress = ">=2.1.2,<3.0.0"
 
 [[package]]
 name = "knack"
@@ -3352,7 +3345,7 @@ testing = ["func-timeout", "jaraco.itertools", "pytest (>=6)", "pytest-black (>=
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.9,<3.10"
-content-hash = "862b504c8405a2b09ae573ab7d868752a3e698d64531a4ad411eb03df1ed4a80"
+content-hash = "41940b99e82ed27c4236288b9226ea5a3f0a02afe951f9bd20d0e2bdf69e93f0"
 
 [metadata.files]
 adal = [
@@ -4270,7 +4263,10 @@ kedro = [
     {file = "kedro-0.18.2-py3-none-any.whl", hash = "sha256:61aa98d38b753e5d0c36fa7d79494c3960ef55d9c091aa7f0dc52a6f5cd96d96"},
     {file = "kedro-0.18.2.tar.gz", hash = "sha256:39e90563a5d589a067e8be73798af60bd5c4b6ab8e7880e809d9dd13cf64fb65"},
 ]
-kedro-projetaai = []
+kedro-projetaai = [
+    {file = "kedro-projetaai-0.1.0b0.tar.gz", hash = "sha256:dcb3b642f7f244def814947bd5ac6711e7a6b1822d754f53673823320b4a2fb6"},
+    {file = "kedro_projetaai-0.1.0b0-py3-none-any.whl", hash = "sha256:e2a366ab9dcbbfc57df4fb09dbd24462f81727ce0d92369018e1696a79fb0dcd"},
+]
 knack = [
     {file = "knack-0.9.0-py3-none-any.whl", hash = "sha256:d609abcca2604086b2e41935f7ffade2f83b709891af87df5088d23240ecbecc"},
     {file = "knack-0.9.0.tar.gz", hash = "sha256:7fcab17585c0236885eaef311c01a1e626d84c982aabcac81703afda3f89c81f"},
