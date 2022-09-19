@@ -31,7 +31,7 @@ universal-pathlib = "^0.0.20"
 pywin32 = {version="^304", markers = "sys_platform == 'win32'"}
 adlfs = "^2022.9.1"
 docker = {git = "https://github.com/gitpushdashf/docker-py.git", rev = "master"}
-kedro-projetaai = "^0.1.0b1"
+kedro-projetaai = "0.1.0b1"
 
 [tool.poetry.group.dev.dependencies]
 yapf = "^0.32.0"
