@@ -2310,8 +2310,8 @@ waitress = "^2.1.2"
 [package.source]
 type = "git"
 url = "https://github.com/ProjetaAi/kedro-projetaai.git"
-reference = "develop"
-resolved_reference = "0a241fa836fccbd8aa560f942b712e0105c8ffdf"
+reference = "working"
+resolved_reference = "f3f0630024df9e53fa5f2bdaabeb0918b078d14d"
 
 [[package]]
 name = "knack"
@@ -3356,7 +3356,7 @@ testing = ["func-timeout", "jaraco.itertools", "pytest (>=6)", "pytest-black (>=
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.9,<3.10"
-content-hash = "9c79704794bd43cc468d13fa83ef7778ed842805c7290ca3d30d332933535899"
+content-hash = "74eb6b1382bd0536d4a3d03f242d6f7115c7b0a5c00aa847788f2a32f0139b32"
 
 [metadata.files]
 adal = [
