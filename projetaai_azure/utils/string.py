@@ -40,7 +40,7 @@ class UPath(_UPath):
             if path.is_absolute():
                 parts = path.parts
                 drive, parts = parts[0], (parts[1:] if len(parts) > 1 else [])
-                drive = drive.strip('\\')
+                drive = drive.strip("\\")
                 return PurePosixPath(drive, *parts)
             else:
                 return PurePosixPath(path)
@@ -114,11 +114,12 @@ def to_snake_case(string: str) -> str:
         >>> to_snake_case('CamelCase')
         'camel_case'
     """
-    return re.sub(r'(?<!^)(?=[A-Z])', '_', string).lower()
+    return re.sub(r"(?<!^)(?=[A-Z])", "_", string).lower()
 
 
-def deepformat(x: Union[str, list, dict],
-               replacements: Dict[str, str]) -> Union[str, list, dict, tuple]:
+def deepformat(
+    x: Union[str, list, dict], replacements: Dict[str, str]
+) -> Union[str, list, dict, tuple]:
     """Replaces strings and nested strings recursively.
 
     Args:

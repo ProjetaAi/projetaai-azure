@@ -13,8 +13,8 @@ def writelines(filepath: str, lines: List[str]):
         filepath (str)
         lines (List[str])
     """
-    with open(filepath, 'w') as f:
-        f.write('\n'.join(lines))
+    with open(filepath, "w") as f:
+        f.write("\n".join(lines))
 
 
 def writeyml(filepath: str, dictionary: dict):
@@ -24,7 +24,7 @@ def writeyml(filepath: str, dictionary: dict):
         filepath (str)
         dictionary (dict)
     """
-    with open(filepath, 'w') as f:
+    with open(filepath, "w") as f:
         yaml.dump(dictionary, f, default_flow_style=False)
 
 
@@ -35,7 +35,7 @@ def writejson(filepath: str, dictionary: dict):
         filepath (str)
         dictionary (dict)
     """
-    with open(filepath, 'w') as f:
+    with open(filepath, "w") as f:
         json.dump(dictionary, f)
 
 
@@ -46,7 +46,7 @@ def writestr(filepath: str, string: str):
         filepath (str)
         string (str)
     """
-    with open(filepath, 'w') as f:
+    with open(filepath, "w") as f:
         f.write(string)
 
 
@@ -59,7 +59,7 @@ def readtoml(filepath: str) -> dict:
     Returns:
         dict
     """
-    with open(filepath, 'rb') as f:
+    with open(filepath, "rb") as f:
         return tomli.load(f)
 
 
@@ -86,7 +86,7 @@ def readyml(filepath: str) -> dict:
     Returns:
         dict
     """
-    with open(filepath, 'r') as f:
+    with open(filepath, "r") as f:
         return yaml.load(f, Loader=yaml.FullLoader)
 
 
@@ -99,7 +99,7 @@ def readlines(filepath: str) -> List[str]:
     Returns:
         List[str]
     """
-    with open(filepath, 'r') as f:
+    with open(filepath, "r") as f:
         return f.readlines()
 
 
@@ -112,5 +112,5 @@ def readstr(filepath: str) -> str:
     Returns:
         str
     """
-    with open(filepath, 'r') as f:
+    with open(filepath, "r") as f:
         return f.read()

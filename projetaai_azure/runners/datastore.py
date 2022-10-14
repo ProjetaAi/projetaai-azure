@@ -27,8 +27,9 @@ class InvalidDataStoreError(Exception):
         Args:
             datastore (str): Datastore name.
         """
-        super().__init__(f'Datastore {datastore} is not a Gen2 or have private'
-                         ' credentials.')
+        super().__init__(
+            f"Datastore {datastore} is not a Gen2 or have private" " credentials."
+        )
 
 
 class DataStore:
@@ -47,9 +48,11 @@ class DataStore:
         self.workspace = workspace
 
     def _validate(self, ds: _Datastore) -> bool:
-        return (getattr(ds, 'client_id')
-                and getattr(ds, 'client_secret')
-                and getattr(ds, 'tenant_id'))
+        return (
+            getattr(ds, "client_id")
+            and getattr(ds, "client_secret")
+            and getattr(ds, "tenant_id")
+        )
 
     def __getitem__(self, datastore: str) -> ServicePrincipal:
         """Gets the service principal from a datastore.
@@ -71,7 +74,7 @@ class DataStore:
             raise InvalidDataStoreError(datastore)
 
         return {
-            'client_id': ds.client_id,
-            'client_secret': ds.client_secret,
-            'tenant_id': ds.tenant_id,
+            "client_id": ds.client_id,
+            "client_secret": ds.client_secret,
+            "tenant_id": ds.tenant_id,
         }

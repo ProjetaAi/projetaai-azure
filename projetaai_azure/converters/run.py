@@ -16,7 +16,7 @@ def unzip_code():
 
 def set_azureml_environment():
     """Sets the AzureML flag."""
-    os.environ['IS_AZML_ENVIRONMENT'] = 'true'
+    os.environ["IS_AZML_ENVIRONMENT"] = "true"
 
 
 def run_code():
@@ -33,5 +33,5 @@ def main():
     run_code()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

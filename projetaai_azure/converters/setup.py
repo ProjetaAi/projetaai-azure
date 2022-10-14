@@ -12,24 +12,22 @@ import click
 def install_azml_cli():
     """Install the Azure ML CLI extension."""
     try:
-        ext = 'azure-cli-ml'
+        ext = "azure-cli-ml"
         try:
             get_extension(ext)
             return
         except ExtensionNotInstalledException:
             click.secho(
-                'Azure ML CLI extension not installed. Installing...',
-                fg='yellow'
+                "Azure ML CLI extension not installed. Installing...", fg="yellow"
             )
             add_extension(
-                extension_name='azure-cli-ml',
+                extension_name="azure-cli-ml",
                 cli_ctx=AzCli(),
             )
-            click.secho('Azure ML CLI extension installed.', fg='green')
+            click.secho("Azure ML CLI extension installed.", fg="green")
     except Exception:
         click.secho(
-            'Error installing Azure ML CLI extension: \n\n'
-            f'{traceback.format_exc()}',
-            fg='red'
+            "Error installing Azure ML CLI extension: \n\n" f"{traceback.format_exc()}",
+            fg="red",
         )
         exit(1)

@@ -129,36 +129,42 @@ class BaseSettingsReader(Step):
         Returns:
             List[_ArgvSpecification]: List of requirements
         """
-        metadata = [{
-            'target': spec['target'],
-            'type': spec.get('type', str),
-            'required': False,
-        } for spec in self.metadata_requirements]
-        other = [{
-            'target': spec['target'],
-            'type': spec.get('type', str),
-            'required': False,
-        } for spec in self.file_specific_requirements]
+        metadata = [
+            {
+                "target": spec["target"],
+                "type": spec.get("type", str),
+                "required": False,
+            }
+            for spec in self.metadata_requirements
+        ]
+        other = [
+            {
+                "target": spec["target"],
+                "type": spec.get("type", str),
+                "required": False,
+            }
+            for spec in self.file_specific_requirements
+        ]
         return metadata + other + self.argv_requirements
 
     def _read_file(self, filepath: str) -> dict:
         extension = get_filepath_extension(filepath)
-        if extension in ['.yml', '.yaml']:
+        if extension in [".yml", ".yaml"]:
             return readyml(filepath)
-        elif extension == '.toml':
+        elif extension == ".toml":
             return readtoml(filepath)
-        elif extension == '.cfg':
+        elif extension == ".cfg":
             return readcfg(filepath)
 
     def _find_in_dict(self, path: str, dictionary: dict) -> Union[Any, None]:
         dictionary = dictionary or {}
-        for part in path.split('.'):
+        for part in path.split("."):
             dictionary = dictionary.get(part, {})
         return dictionary or None
 
     def _apply_default(self, spec: _DefaultSpecification, value: Any) -> Any:
         if value is None:
-            default = spec.get('default')
+            default = spec.get("default")
             if default:
                 return default(self.settings)
             else:
@@ -168,12 +174,12 @@ class BaseSettingsReader(Step):
 
     def _prepare(self, spec: _BaseSpecification, value: Any) -> Any:
         try:
-            return spec.get('preparator', identity)(value, self.settings)
+            return spec.get("preparator", identity)(value, self.settings)
         except Exception:
             return value
 
     def _validate(self, spec: _BaseSpecification, value: Any) -> bool:
-        output = spec.get('validator', truthify)(value, self.settings)
+        output = spec.get("validator", truthify)(value, self.settings)
         if isinstance(output, tuple):
             status = output[0]
             message = output[1]
@@ -187,22 +193,19 @@ class BaseSettingsReader(Step):
 
     def _set_target(self, spec: _BaseSpecification, value: Any):
         if value is not None:
-            self.settings[spec['target']] = value
-        elif not spec.get('required', True):
-            if spec['target'] not in self.settings:
-                self.settings[spec['target']] = value
+            self.settings[spec["target"]] = value
+        elif not spec.get("required", True):
+            if spec["target"] not in self.settings:
+                self.settings[spec["target"]] = value
 
     def _read_meta_spec(self, meta: _MetaSpecification) -> Any:
         """Reads a metadata specification and the value."""
-        dictionary = self._read_file(meta['file'])
-        value = self._find_in_dict(meta['path'], dictionary)
+        dictionary = self._read_file(meta["file"])
+        value = self._find_in_dict(meta["path"], dictionary)
         value = self._prepare(meta, value)
         self._validate(meta, value)
         if value is None:
-            raise KeyError(
-                f'please specify "{meta["path"]}" in '
-                f'"{meta["file"]}"'
-            )
+            raise KeyError(f'please specify "{meta["path"]}" in ' f'"{meta["file"]}"')
         return value
 
     def read_meta(self):
@@ -213,11 +216,9 @@ class BaseSettingsReader(Step):
         for meta in self.metadata_requirements:
             self._set_target(meta, self._read_meta_spec(meta))
 
-    def _read_file_specific_spec(
-        self, spec: _FileSpecificSpecification
-    ) -> Any:
-        dictionary = self._read_file(spec['file'])
-        value = self._find_in_dict(spec['path'], dictionary)
+    def _read_file_specific_spec(self, spec: _FileSpecificSpecification) -> Any:
+        dictionary = self._read_file(spec["file"])
+        value = self._find_in_dict(spec["path"], dictionary)
         value = self._prepare(spec, self._apply_default(spec, value))
         self._validate(spec, value)
         return value
@@ -231,7 +232,7 @@ class BaseSettingsReader(Step):
             self._set_target(spec, self._read_file_specific_spec(spec))
 
     def _read_argv_spec(self, argv: _ArgvSpecification) -> Any:
-        value = self.argv.get(argv['target'])
+        value = self.argv.get(argv["target"])
         value = self._prepare(argv, self._apply_default(argv, value))
         self._validate(argv, value)
         return value
@@ -244,20 +245,21 @@ class BaseSettingsReader(Step):
     def _validate_not_filled(self):
         """Checks if all settings were filled."""
         for spec in chain(
-            self.metadata_requirements, self.file_specific_requirements,
-            self.argv_requirements
+            self.metadata_requirements,
+            self.file_specific_requirements,
+            self.argv_requirements,
         ):
-            if (
-                spec['target'] not in self.settings or (
-                    self.settings[spec['target']] is None
-                    and spec.get('required', True)
-                )
+            if spec["target"] not in self.settings or (
+                self.settings[spec["target"]] is None and spec.get("required", True)
             ):
                 raise KeyError(
-                    f'"{spec["target"]}" must be defined in ' + (
+                    f'"{spec["target"]}" must be defined in '
+                    + (
                         f'"{spec["file"]}" under "{spec["path"]}" or in '
-                        if spec.get('file') else ''
-                    ) + 'argv'
+                        if spec.get("file")
+                        else ""
+                    )
+                    + "argv"
                 )
 
     def run(self) -> dict:
@@ -293,27 +295,29 @@ class BaseSettingsReader(Step):
             return fn(**kwargs)
 
         def spec_parser(spec: dict) -> dict:
-            if spec.get('type') in CLICK_TYPEMAP:
+            if spec.get("type") in CLICK_TYPEMAP:
                 return {
-                    'type': CLICK_TYPEMAP[spec['type']],
-                    'help': spec.get('help', None)
+                    "type": CLICK_TYPEMAP[spec["type"]],
+                    "help": spec.get("help", None),
                 }
-            elif spec.get('type') and get_origin(spec.get('type')) is list:
+            elif spec.get("type") and get_origin(spec.get("type")) is list:
                 return {
-                    'type': CLICK_TYPEMAP[get_args(spec.get('type'))[0]],
-                    'multiple': True,
-                    'help': spec.get('help', None)
+                    "type": CLICK_TYPEMAP[get_args(spec.get("type"))[0]],
+                    "multiple": True,
+                    "help": spec.get("help", None),
                 }
             return {}
 
         for spec in self.file_specific_requirements:
-            cmd = click.option(f'--{spec["target"]}', required=False,
-                               **spec_parser(spec))(cmd)
+            cmd = click.option(
+                f'--{spec["target"]}', required=False, **spec_parser(spec)
+            )(cmd)
         for spec in self.argv_requirements:
             cmd = click.option(
                 f'--{spec["target"]}',
-                required=('default' not in spec),
-                **spec_parser(spec))(cmd)
+                required=("default" not in spec),
+                **spec_parser(spec),
+            )(cmd)
 
         return click.command(cmd, **click_kwargs)
 
@@ -332,11 +336,11 @@ class BasicAzureMLSettingsReader(BaseSettingsReader):
     """
 
     CREDENTIALS_FILENAME: ClassVar[str] = str(
-        Path('conf') / 'local' / 'credentials.yml'
+        Path("conf") / "local" / "credentials.yml"
     )
-    CREDENTIALS_SECTION: ClassVar[str] = 'azure.deploy'
-    PYPROJECT_FILENAME: ClassVar[str] = 'pyproject.toml'
-    SETUP_FILENAME: ClassVar[str] = 'setup.cfg'
+    CREDENTIALS_SECTION: ClassVar[str] = "azure.deploy"
+    PYPROJECT_FILENAME: ClassVar[str] = "pyproject.toml"
+    SETUP_FILENAME: ClassVar[str] = "setup.cfg"
 
     @property
     def metadata_requirements(self) -> List[_MetaSpecification]:
@@ -345,20 +349,24 @@ class BasicAzureMLSettingsReader(BaseSettingsReader):
         Returns:
             List[_MetaSpecification]: List of metadata requirements
         """
-        return [{
-            'target': 'project',
-            'file': self.PYPROJECT_FILENAME,
-            'path': 'tool.kedro.package_name',
-        }, {
-            'target': 'python',
-            'file': self.SETUP_FILENAME,
-            'path': 'options.python_requires',
-            'preparator': lambda x, _: re.search(r'3\.\d+(\.\d+)?', x)[0],
-        }, {
-            'target': 'description',
-            'file': self.SETUP_FILENAME,
-            'path': 'metadata.description',
-        }]
+        return [
+            {
+                "target": "project",
+                "file": self.PYPROJECT_FILENAME,
+                "path": "tool.kedro.package_name",
+            },
+            {
+                "target": "python",
+                "file": self.SETUP_FILENAME,
+                "path": "options.python_requires",
+                "preparator": lambda x, _: re.search(r"3\.\d+(\.\d+)?", x)[0],
+            },
+            {
+                "target": "description",
+                "file": self.SETUP_FILENAME,
+                "path": "metadata.description",
+            },
+        ]
 
     @property
     def file_specific_requirements(self) -> List[_FileSpecificSpecification]:
@@ -368,11 +376,14 @@ class BasicAzureMLSettingsReader(BaseSettingsReader):
             List[_FileSpecificSpecification]:
                 List of file specific requirements
         """
-        return [{
-            'target': target,
-            'file': self.CREDENTIALS_FILENAME,
-            'path': f'{self.CREDENTIALS_SECTION}.{target}',
-        } for target in ['compute', 'resource_group', 'workspace']]
+        return [
+            {
+                "target": target,
+                "file": self.CREDENTIALS_FILENAME,
+                "path": f"{self.CREDENTIALS_SECTION}.{target}",
+            }
+            for target in ["compute", "resource_group", "workspace"]
+        ]
 
 
 class _AuthManagedTenant(TypedDict):
@@ -383,12 +394,12 @@ class _AuthManagedTenant(TypedDict):
 class _AuthUser(TypedDict):
     name: str
     """Name of the user"""
-    type: Union[Literal['user'], str]
+    type: Union[Literal["user"], str]
     """Account type"""
 
 
 class _AuthSubscription(TypedDict):
-    cloudName: Union[Literal['AzureCloud'], str]
+    cloudName: Union[Literal["AzureCloud"], str]
     """Service provider name"""
     homeTenantId: str
     """User group tenant"""
@@ -400,7 +411,7 @@ class _AuthSubscription(TypedDict):
     """List of tenant ids that manage the subscription"""
     name: str
     """Username"""
-    state: Literal['Enabled', 'Disabled']
+    state: Literal["Enabled", "Disabled"]
     """Whether the subscription is active"""
     tenantId: str
     """User tenant id"""
@@ -442,7 +453,7 @@ class Authenticator(ConverterStep):
             bool: Whether the subscription is valid
         """
         try:
-            Workspace(subscription['id'], self.resource_group, self.workspace)
+            Workspace(subscription["id"], self.resource_group, self.workspace)
             return True
         except Exception:
             return False
@@ -453,10 +464,13 @@ class Authenticator(ConverterStep):
         Returns:
             List[_AuthSubscription]: List of subscriptions
         """
-        self.log('error', 'None of the logged subscriptions are valid, run '
-                 '`az login` or `az login --use-device-code` with a valid '
-                 'account and try again')
-        raise RuntimeError('No valid subscriptions')
+        self.log(
+            "error",
+            "None of the logged subscriptions are valid, run "
+            "`az login` or `az login --use-device-code` with a valid "
+            "account and try again",
+        )
+        raise RuntimeError("No valid subscriptions")
 
     def _get_valid_subscription(
         self, subscriptions: List[_AuthSubscription]
@@ -474,22 +488,19 @@ class Authenticator(ConverterStep):
         Returns:
             _AuthSubscription: Valid subscription
         """
-        subscription = (
-            self._get_valid_subscription(self.read_cached_subscriptions())
-            or self._get_valid_subscription(self._read_azlogin_subscriptions())
-        )
+        subscription = self._get_valid_subscription(
+            self.read_cached_subscriptions()
+        ) or self._get_valid_subscription(self._read_azlogin_subscriptions())
         if subscription:
             return subscription
         else:
-            raise ValueError('No valid subscription found')
+            raise ValueError("No valid subscription found")
 
-    def _instance_workspace(
-        self, subscription: _AuthSubscription
-    ) -> Workspace:
+    def _instance_workspace(self, subscription: _AuthSubscription) -> Workspace:
         return Workspace(
-            subscription_id=subscription['id'],
+            subscription_id=subscription["id"],
             resource_group=self.resource_group,
-            workspace_name=self.workspace
+            workspace_name=self.workspace,
         )
 
     def run(self) -> dict:
@@ -500,6 +511,6 @@ class Authenticator(ConverterStep):
         """
         subscription = self.get_subscription()
         return {
-            'subscription_id': subscription['id'],
-            'workspace_instance': self._instance_workspace(subscription)
+            "subscription_id": subscription["id"],
+            "workspace_instance": self._instance_workspace(subscription),
         }

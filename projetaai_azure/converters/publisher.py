@@ -12,11 +12,7 @@ from typing import Union
 from projetaai_azure.converters.step import ConverterStep
 
 from azureml.core import Workspace
-from azureml.pipeline.core import (
-    PipelineEndpoint,
-    PublishedPipeline,
-    PipelineDraft
-)
+from azureml.pipeline.core import PipelineEndpoint, PublishedPipeline, PipelineDraft
 
 
 @dataclass
@@ -55,17 +51,17 @@ class Publisher(ConverterStep):
                 self.pipeline_id = draft.id
                 break
         else:
-            raise RuntimeError('No pipeline draft found to publish')
+            raise RuntimeError("No pipeline draft found to publish")
 
     def _publish_draft(self):
         call_json = self.azml(
-            'pipeline',
-            'publish-draft',
-            '--pipeline-draft-id',
+            "pipeline",
+            "publish-draft",
+            "--pipeline-draft-id",
             self.pipeline_id,
-            json=True
+            json=True,
         )
-        self.published_id = call_json['Id']
+        self.published_id = call_json["Id"]
 
     def _instance_published(self):
         self.published_instance = PublishedPipeline.get(
@@ -106,9 +102,7 @@ class Publisher(ConverterStep):
 
     def find_or_create_endpoint(self):
         """Finds or creates an endpoint with the same name as the pipeline."""
-        self.endpoint = (
-            self.find_existing_endpoint() or self.create_new_endpoint()
-        )
+        self.endpoint = self.find_existing_endpoint() or self.create_new_endpoint()
 
     def _instance_old_published(self):
         self.old_published_instance = self.endpoint.get_pipeline()
@@ -127,12 +121,12 @@ class Publisher(ConverterStep):
         self._publish_draft()
         self._instance_published()
         self.find_or_create_endpoint()
-        output = {'published_id': self.published_id}
+        output = {"published_id": self.published_id}
         if self.just_created_endpoint:
-            self.log('info', 'endpoint doesn\'t exist, creating it')
+            self.log("info", "endpoint doesn't exist, creating it")
         else:
-            self.log('info', 'endpoint already exists, updating it')
+            self.log("info", "endpoint already exists, updating it")
             self._instance_old_published()
             self._replace_endpoint_default_pipeline()
-            output['old_published_id'] = self.old_published_instance.id
+            output["old_published_id"] = self.old_published_instance.id
         return output

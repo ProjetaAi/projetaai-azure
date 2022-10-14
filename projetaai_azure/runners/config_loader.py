@@ -22,8 +22,8 @@ class AzureConfigLoader(TemplatedConfigLoader):
         datastore (DataStore): Datastore wrapper.
     """
 
-    DS_PREFIX = 'ds::'
-    KV_PREFIX = 'kv::'
+    DS_PREFIX = "ds::"
+    KV_PREFIX = "kv::"
 
     def __init__(
         self,
@@ -53,7 +53,7 @@ class AzureConfigLoader(TemplatedConfigLoader):
             globals_dict (Optional[Dict[str, Any]], optional): Starting dict.
                 Defaults to None.
         """
-        assert workspace is not None, 'Workspace is required'
+        assert workspace is not None, "Workspace is required"
         super().__init__(
             conf_source,
             env,

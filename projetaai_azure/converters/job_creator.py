@@ -33,14 +33,14 @@ class JobCreator(ConverterStep):
                 self.pipeline_id = draft.id
                 break
         else:
-            raise RuntimeError('No pipeline draft found to run')
+            raise RuntimeError("No pipeline draft found to run")
 
     def submit(self):
         """Submit the job to AzureML."""
         self.azml(
-            'pipeline',
-            'submit-draft',
-            '--pipeline-draft-id',
+            "pipeline",
+            "submit-draft",
+            "--pipeline-draft-id",
             self.pipeline_id,
         )
 

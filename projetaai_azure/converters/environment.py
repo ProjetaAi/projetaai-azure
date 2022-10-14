@@ -21,7 +21,7 @@ class _EnvCondaDependencies(TypedDict):
 
     name: str
     """Environment name"""
-    channels: Union[List[str], Literal['conda-forge']]
+    channels: Union[List[str], Literal["conda-forge"]]
     """Channels to get dependencies from"""
     dependencies: List[Union[str, Dict[str, List[str]]]]
     """List of dependencies to install. Can be a requirement representation
@@ -52,11 +52,11 @@ class EnvironmentCreator(ConverterStep):
         environment (str): AzureML environment name
     """
 
-    ENVIRONMENT_FOLDER: ClassVar[str] = 'environment'
-    REQUIREMENTS_FILENAME: ClassVar[str] = 'requirements.txt'
-    CONDAFILE_FILENAME: ClassVar[str] = 'conda_dependencies.yml'
-    DOCKERFILE_FILENAME: ClassVar[str] = 'BaseDockerfile'
-    AZUREML_ENVIRONMENT_FILENAME: ClassVar[str] = 'azureml_environment.json'
+    ENVIRONMENT_FOLDER: ClassVar[str] = "environment"
+    REQUIREMENTS_FILENAME: ClassVar[str] = "requirements.txt"
+    CONDAFILE_FILENAME: ClassVar[str] = "conda_dependencies.yml"
+    DOCKERFILE_FILENAME: ClassVar[str] = "BaseDockerfile"
+    AZUREML_ENVIRONMENT_FILENAME: ClassVar[str] = "azureml_environment.json"
 
     project: str
     python: str
@@ -74,9 +74,7 @@ class EnvironmentCreator(ConverterStep):
         Returns:
             str
         """
-        return str(
-            Path('.') / self.SOURCE_FOLDER / 'src' / self.REQUIREMENTS_FILENAME
-        )
+        return str(Path(".") / self.SOURCE_FOLDER / "src" / self.REQUIREMENTS_FILENAME)
 
     @property
     def _requirements_dict(self) -> Dict[str, Requirement]:
@@ -88,7 +86,7 @@ class EnvironmentCreator(ConverterStep):
         Returns:
             Dict[str, Requirement]
         """
-        with open(self._requirements_filepath, 'r') as f:
+        with open(self._requirements_filepath, "r") as f:
             reqs = list(requirements.parse(f))
 
         return {req.name: req for req in reqs}
@@ -119,7 +117,7 @@ class EnvironmentCreator(ConverterStep):
         Returns:
             str
         """
-        return 'conda-forge'
+        return "conda-forge"
 
     @property
     def base_environment_name(self) -> str:
@@ -141,15 +139,13 @@ class EnvironmentCreator(ConverterStep):
 
     def _build_condafile(self) -> _EnvCondaDependencies:
         return {
-            'name': self.environment_name,
-            'channels': [self.conda_channel],
-            'dependencies': [
-                f'python={self.python}',
-                'pip',
-                {
-                    'pip': self.requirements_lines
-                }
-            ]
+            "name": self.environment_name,
+            "channels": [self.conda_channel],
+            "dependencies": [
+                f"python={self.python}",
+                "pip",
+                {"pip": self.requirements_lines},
+            ],
         }
 
     @property
@@ -159,7 +155,7 @@ class EnvironmentCreator(ConverterStep):
         Returns:
             str: Docker image url
         """
-        return 'mcr.microsoft.com/azureml/openmpi4.1.0-ubuntu20.04:20220516.v1'
+        return "mcr.microsoft.com/azureml/openmpi4.1.0-ubuntu20.04:20220516.v1"
 
     @property
     def docker_jdk(self) -> str:
@@ -168,7 +164,7 @@ class EnvironmentCreator(ConverterStep):
         Returns:
             str: java jdk version to be installed using apt-get
         """
-        return 'openjdk-8-jre'
+        return "openjdk-8-jre"
 
     @property
     def docker_databricks_connect(self) -> str:
@@ -178,7 +174,7 @@ class EnvironmentCreator(ConverterStep):
             str: databricks-connect version compatible with your databricks
                 cluster.
         """
-        return 'databricks-connect==9.1.21'
+        return "databricks-connect==9.1.21"
 
     @property
     def docker_azure_cli_extension(self) -> str:
@@ -187,7 +183,7 @@ class EnvironmentCreator(ConverterStep):
         Returns:
             str: azure-cli and azure extension needed
         """
-        return 'azure-cli-ml'
+        return "azure-cli-ml"
 
     @property
     def docker_java_home(self) -> str:
@@ -196,50 +192,48 @@ class EnvironmentCreator(ConverterStep):
         Returns:
             str: JAVA_HOME path
         """
-        return '/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java'
+        return "/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java"
 
     def _has_spark_conf_file(self) -> bool:
         return is_databricks_project(Path(self.SOURCE_FOLDER))
 
     def _build_dockerfile(self) -> List[str]:
         docker_file = [
-            f'FROM {self.docker_image}',
-            'RUN pip install azure-cli',
-            f'RUN az extension add --name {self.docker_azure_cli_extension}',
+            f"FROM {self.docker_image}",
+            "RUN pip install azure-cli",
+            f"RUN az extension add --name {self.docker_azure_cli_extension}",
         ]
 
         if self._has_spark_conf_file():
             docker_file = docker_file + [
-                'USER root:root',
-                'RUN mkdir -p /usr/share/man/man1',
-                f'RUN apt-get update && apt-get install -y {self.docker_jdk}',
-                f'RUN pip install {self.docker_databricks_connect}',
-                f'RUN export JAVA_HOME={self.docker_java_home}'
+                "USER root:root",
+                "RUN mkdir -p /usr/share/man/man1",
+                f"RUN apt-get update && apt-get install -y {self.docker_jdk}",
+                f"RUN pip install {self.docker_databricks_connect}",
+                f"RUN export JAVA_HOME={self.docker_java_home}",
             ]
 
         return docker_file
 
     def _build_azureml_environment(self) -> _EnvAzureMLEnvironment:
-        return {'name': self.environment_name, 'python': {}}
+        return {"name": self.environment_name, "python": {}}
 
     def _save_condafile(self):
         writeyml(
             str(Path(self.ENVIRONMENT_FOLDER) / self.CONDAFILE_FILENAME),
-            self._build_condafile()
+            self._build_condafile(),
         )
 
     def _save_dockerfile(self):
         writelines(
             str(Path(self.ENVIRONMENT_FOLDER) / self.DOCKERFILE_FILENAME),
-            self._build_dockerfile()
+            self._build_dockerfile(),
         )
 
     def _save_azureml_environment(self):
         writejson(
-            str(
-                Path(self.ENVIRONMENT_FOLDER)
-                / self.AZUREML_ENVIRONMENT_FILENAME
-            ), self._build_azureml_environment()
+            str(Path(self.ENVIRONMENT_FOLDER) / self.AZUREML_ENVIRONMENT_FILENAME),
+            self._build_azureml_environment(),
         )
 
     def save(self):
@@ -250,9 +244,7 @@ class EnvironmentCreator(ConverterStep):
 
     def submit(self):
         """Pushes the environment to Azure ML."""
-        self.azml(
-            'environment', 'register', '--directory', self.ENVIRONMENT_FOLDER
-        )
+        self.azml("environment", "register", "--directory", self.ENVIRONMENT_FOLDER)
 
     def clean(self):
         """Removes environment files."""
@@ -267,8 +259,7 @@ class EnvironmentCreator(ConverterStep):
     def _is_requirements_equal(self, environment: Environment) -> bool:
         current_requirements = {req for req in self.requirements_lines}
         environment_requirements = {
-            req
-            for req in environment.python.conda_dependencies.pip_packages
+            req for req in environment.python.conda_dependencies.pip_packages
         }
         return current_requirements == environment_requirements
 
@@ -284,8 +275,9 @@ class EnvironmentCreator(ConverterStep):
         Returns:
             Union[str, None]: Environment name or None if not found
         """
-        return (self._find_environment(self.base_environment_name)
-                or self._find_environment(self.environment_name))
+        return self._find_environment(
+            self.base_environment_name
+        ) or self._find_environment(self.environment_name)
 
     def run(self) -> dict:
         """Runs the environment creator.
@@ -295,13 +287,19 @@ class EnvironmentCreator(ConverterStep):
         """
         existing_environment = self.find_environment()
         if existing_environment:
-            self.log('info', f'environment "{existing_environment}" with the '
-                     'same requirements already exists, using it')
-            return {'environment': existing_environment}
+            self.log(
+                "info",
+                f'environment "{existing_environment}" with the '
+                "same requirements already exists, using it",
+            )
+            return {"environment": existing_environment}
         else:
-            self.log('info', 'no environments with the same requirements '
-                     f'found, creating/updating "{self.environment_name}"')
+            self.log(
+                "info",
+                "no environments with the same requirements "
+                f'found, creating/updating "{self.environment_name}"',
+            )
             self.save()
             self.submit()
             self.clean()
-            return {'environment': self.environment_name}
+            return {"environment": self.environment_name}

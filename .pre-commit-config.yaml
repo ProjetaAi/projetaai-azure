@@ -1,8 +1,13 @@
 repos:
-  - repo: https://github.com/pycqa/flake8
-    rev: '3.9.0'
+  - repo: local
     hooks:
       - id: flake8
-        additional_dependencies: 
-          - flake8-docstrings
-          - flake8-annotations
+        name: Flake8
+        entry: flake8
+        language: system
+        types: [python]
+      - id: black
+        name: Black
+        entry: black
+        language: system
+        types: [python]

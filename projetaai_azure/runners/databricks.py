@@ -15,13 +15,11 @@ def is_databricks_project(folder: Path = None) -> bool:
         bool: True if the project is a Databricks project.
     """
     folder = folder or Path.cwd()
-    return (folder / 'conf' / 'base' / 'spark.yml').exists()
+    return (folder / "conf" / "base" / "spark.yml").exists()
 
 
 def configure_databricks_connect(
-    workspace: Workspace,
-    folder: Path = None,
-    dot_db_connect_folder: Path = None
+    workspace: Workspace, folder: Path = None, dot_db_connect_folder: Path = None
 ):
     """Sets up Databricks Connect.
 
@@ -47,14 +45,15 @@ def configure_databricks_connect(
             `.databricks-connect`. Defaults to '/root'.
     """
     if is_databricks_project(folder):
-        dot_db_connect_folder = dot_db_connect_folder or Path('/root')
+        dot_db_connect_folder = dot_db_connect_folder or Path("/root")
         kv = Keyvault(workspace)
         connect_config = {
-            'host': kv['databricks_host'],
-            'token': kv['databricks_token'],
-            'org_id': kv['databricks_org_id'],
-            'cluster_id': kv['databricks_cluster_id'],
-            'port': kv['databricks_port'],
+            "host": kv["databricks_host"],
+            "token": kv["databricks_token"],
+            "org_id": kv["databricks_org_id"],
+            "cluster_id": kv["databricks_cluster_id"],
+            "port": kv["databricks_port"],
         }
-        (dot_db_connect_folder / '.databricks-connect').write_text(
-            json.dumps(connect_config))
+        (dot_db_connect_folder / ".databricks-connect").write_text(
+            json.dumps(connect_config)
+        )

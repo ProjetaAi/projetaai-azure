@@ -27,8 +27,9 @@ from azureml.pipeline.core import (
 )
 
 
-WeekDays = Literal['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday',
-                   'Friday', 'Saturday']
+WeekDays = Literal[
+    "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
+]
 
 
 @dataclass
@@ -48,10 +49,9 @@ class Scheduler(ConverterStep):
             pipeline
     """
 
-    SCHEDULE_FILENAME: ClassVar[str] = 'schedule.yml'
+    SCHEDULE_FILENAME: ClassVar[str] = "schedule.yml"
     TIMEOUT: ClassVar[int] = 3600
-    AZ_MIN_DATE: ClassVar[str] = datetime.datetime(2000, 1, 1, 0, 0,
-                                                   0).isoformat()
+    AZ_MIN_DATE: ClassVar[str] = datetime.datetime(2000, 1, 1, 0, 0, 0).isoformat()
 
     workspace_instance: Workspace
 
@@ -65,17 +65,17 @@ class Scheduler(ConverterStep):
 
     old_published_id: str = None
     published_id: str = field(init=False)
-    old_schedule_instance: Union[Schedule,
-                                 None] = field(init=False, default=None)
+    old_schedule_instance: Union[Schedule, None] = field(init=False, default=None)
 
     def _fetch_published(self):
         """Fetches the published pipeline id."""
         try:
-            endpoint = PipelineEndpoint.get(self.workspace_instance,
-                                            name=self.azure_pipeline)
+            endpoint = PipelineEndpoint.get(
+                self.workspace_instance, name=self.azure_pipeline
+            )
             self.published_id = endpoint.get_pipeline().id
         except Exception as e:
-            raise RuntimeError('published pipeline not found') from e
+            raise RuntimeError("published pipeline not found") from e
 
     def _find_schedule(self):
         if self.old_published_id:
@@ -89,7 +89,7 @@ class Scheduler(ConverterStep):
     def create_new_schedule(self):
         """Creates a new schedule."""
         recurrence = ScheduleRecurrence(
-            frequency='Week',
+            frequency="Week",
             hours=[self.hour],
             minutes=[self.minute],
             week_days=self.day,
@@ -133,12 +133,12 @@ class Scheduler(ConverterStep):
         self._find_schedule()
         if self.old_schedule_instance:
             if self.hour:
-                self.log('info', 'an old schedule exists, disabling it')
+                self.log("info", "an old schedule exists, disabling it")
             else:
-                self.log('info', 'schedule already exists, forwarding it')
+                self.log("info", "schedule already exists, forwarding it")
                 self._forward_schedule()
             self._disable_old_schedule()
 
         if self.hour:
-            self.log('info', 'creating a new schedule')
+            self.log("info", "creating a new schedule")
             self.create_new_schedule()

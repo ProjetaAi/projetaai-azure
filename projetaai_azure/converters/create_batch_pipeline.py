@@ -29,7 +29,7 @@ from azureml.pipeline.core import Pipeline
 from azureml.data import OutputFileDatasetConfig
 from azureml.pipeline.steps import ParallelRunConfig, ParallelRunStep
 
-sys.path.append(str(Path(getcwd()) / 'src'))
+sys.path.append(str(Path(getcwd()) / "src"))
 
 
 @dataclass
@@ -51,44 +51,55 @@ class _SettingsReader(BasicAzureMLSettingsReader):
 
     @property
     def argv_requirements(self) -> List[_ArgvSpecification]:
-        return ([{
-            'target': 'aml_compute_target',
-            'type': str,
-        }, {
-            'target': 'environment_name',
-            'type': str,
-        }, {
-            'target': 'dataset_name',
-            'type': str,
-        }, {
-            'target': 'output_dir_name',
-            'type': str,
-            'default': lambda _: 'output',
-        }, {
-            'target': 'source_directory',
-            'type': str,
-            'default': lambda _: '.',
-        }, {
-            'target': 'entry_script',
-            'type': str,
-        }, {
-            'target': 'mini_batch_size',
-            'type': str,
-            'default': lambda _: 10,
-        }, {
-            'target': 'error_threshold',
-            'type': str,
-            'default': lambda _: 10,
-        }, {
-            'target': 'node_count',
-            'type': str,
-            'default': lambda _: 1,
-        }, {
-            'target': 'job_name',
-            'type': str,
-            'default': lambda _: 'my-batch-pipeline-' + datetime
-            .datetime.now().strftime('%Y%m%d%H%M'),
-        }])
+        return [
+            {
+                "target": "aml_compute_target",
+                "type": str,
+            },
+            {
+                "target": "environment_name",
+                "type": str,
+            },
+            {
+                "target": "dataset_name",
+                "type": str,
+            },
+            {
+                "target": "output_dir_name",
+                "type": str,
+                "default": lambda _: "output",
+            },
+            {
+                "target": "source_directory",
+                "type": str,
+                "default": lambda _: ".",
+            },
+            {
+                "target": "entry_script",
+                "type": str,
+            },
+            {
+                "target": "mini_batch_size",
+                "type": str,
+                "default": lambda _: 10,
+            },
+            {
+                "target": "error_threshold",
+                "type": str,
+                "default": lambda _: 10,
+            },
+            {
+                "target": "node_count",
+                "type": str,
+                "default": lambda _: 1,
+            },
+            {
+                "target": "job_name",
+                "type": str,
+                "default": lambda _: "my-batch-pipeline-"
+                + datetime.datetime.now().strftime("%Y%m%d%H%M"),
+            },
+        ]
 
 
 @dataclass
@@ -123,9 +134,7 @@ class CreateBatchPipeline(ConverterStep):
 
     def _get_basic_deploy_info(self):
         # Compute
-        self.aml_compute = AmlCompute(
-            self.workspace_instance, self.aml_compute_target
-        )
+        self.aml_compute = AmlCompute(self.workspace_instance, self.aml_compute_target)
 
         # Environment
         self.aml_run_config = RunConfiguration()
@@ -137,8 +146,7 @@ class CreateBatchPipeline(ConverterStep):
 
     def _get_basic_data_info(self):
         self.def_blob_store = self.workspace_instance.get_default_datastore()
-        self.batch_data_set = self.workspace_instance \
-            .datasets[self.dataset_name]
+        self.batch_data_set = self.workspace_instance.datasets[self.dataset_name]
         self.output_dir = OutputFileDatasetConfig(name=self.output_dir_name)
 
     def _define_parallelrun_config(self):
@@ -150,25 +158,26 @@ class CreateBatchPipeline(ConverterStep):
             output_action="append_row",
             environment=self.curated_environment,
             compute_target=self.aml_compute_target,
-            node_count=self.node_count
+            node_count=self.node_count,
         )
 
     def _create_batch_pipeline_step(self):
         self.parallelrun_step = ParallelRunStep(
-            name='batch-scoring-step',
+            name="batch-scoring-step",
             parallel_run_config=self.parallel_run_config,
-            inputs=[self.batch_data_set.as_named_input('batch_data')],
+            inputs=[self.batch_data_set.as_named_input("batch_data")],
             output=self.output_dir,
             arguments=[],
-            allow_reuse=False
+            allow_reuse=False,
         )
 
     def _run_batch_pipeline(self):
         self.pipeline = Pipeline(
             workspace=self.workspace_instance, steps=[self.parallelrun_step]
         )
-        self.pipeline_run = Experiment(self.workspace_instance, self.job_name)\
-            .submit(self.pipeline)
+        self.pipeline_run = Experiment(self.workspace_instance, self.job_name).submit(
+            self.pipeline
+        )
 
     def run(self) -> None:
         """Run all the pipeline deployment scripts."""
@@ -187,5 +196,5 @@ def main():
     )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

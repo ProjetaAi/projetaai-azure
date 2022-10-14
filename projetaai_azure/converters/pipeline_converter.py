@@ -36,10 +36,11 @@ from projetaai_azure.utils.io import (
 from azureml.pipeline.core import PipelineDraft
 from azureml.core import Workspace
 
-sys.path.append(str(Path(getcwd()) / 'src'))
+sys.path.append(str(Path(getcwd()) / "src"))
 
-WeekDays = Literal['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday',
-                   'Friday', 'Saturday']
+WeekDays = Literal[
+    "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
+]
 
 
 @dataclass
@@ -71,15 +72,15 @@ class FolderPreparator(ConverterStep):
         os.mkdir(str(Path(self.CONVERTER_FOLDER) / self.SOURCE_FOLDER))
 
         folder = Path(self.CONVERTER_FOLDER) / self.SOURCE_FOLDER
-        for dir in ['src', 'conf']:
+        for dir in ["src", "conf"]:
             shutil.copytree(dir, str(folder / dir))
-        for file in ['pyproject.toml']:
+        for file in ["pyproject.toml"]:
             shutil.copy(file, str(folder / file))
 
         os.chdir(str(Path(os.getcwd()) / self.CONVERTER_FOLDER))
-        os.mkdir(str(Path(self.SOURCE_FOLDER) / 'logs'))
+        os.mkdir(str(Path(self.SOURCE_FOLDER) / "logs"))
 
-        for dir in [str(PurePosixPath(self.SOURCE_FOLDER) / 'conf' / 'local')]:
+        for dir in [str(PurePosixPath(self.SOURCE_FOLDER) / "conf" / "local")]:
             if os.path.exists(dir):
                 shutil.rmtree(dir)
                 os.mkdir(dir)
@@ -102,7 +103,7 @@ class _PipeStep(TypedDict):
     """Run configuration file"""
     script_name: str
     """Name of the script to run"""
-    type: Union[str, Literal['PythonScriptStep']]
+    type: Union[str, Literal["PythonScriptStep"]]
     """AzureML script type"""
     source_directory: str
     """Directory containing the pipeline source code"""
@@ -143,15 +144,15 @@ class _PipeRunConfig(TypedDict):
 
 
 _PipeCLIDraft = TypedDict(
-    'PipeCLIDraft',
+    "PipeCLIDraft",
     {
-        'Id': str,  # Unique identifier of the pipeline
-        'Last Submitted Pipeline Run Id': Union[str, Literal['null']],
+        "Id": str,  # Unique identifier of the pipeline
+        "Last Submitted Pipeline Run Id": Union[str, Literal["null"]],
         # Unique identifier of the last submitted pipeline run
-        'Name': str,  # Name of the pipeline
-        'Properties': dict,  # Properties of the pipeline
-        'Tags': Dict[str, bool],  # Tags of the pipeline
-    }
+        "Name": str,  # Name of the pipeline
+        "Properties": dict,  # Properties of the pipeline
+        "Tags": Dict[str, bool],  # Tags of the pipeline
+    },
 )
 
 
@@ -172,19 +173,21 @@ class PipelineConverter(ConverterStep):
         pipeline_id (str): Unique identifier of the AzureML draft pipeline
     """
 
-    PIPELINE_FOLDER: ClassVar[str] = 'pipeline'
-    PIPELINE_FILENAME: ClassVar[str] = 'pipeline.yml'
-    ENV_FILENAME: ClassVar[str] = 'env.json'
-    RUNCONFIG_FILENAME: ClassVar[str] = 'runconfig.yml'
-    RUN_FILENAME: ClassVar[str] = 'run.py'
-    RUN_FILEPATH: ClassVar[str] =\
-        str(Path(PIPELINE_FOLDER) / RUN_FILENAME)
-    COMPRESSED_PROJECT_FILENAME: ClassVar[str] = 'code.zip'
-    RUN_TEMPLATED_CREDENTIALS_FILEPATH: ClassVar[str] =\
-        str(PurePosixPath(FolderPreparator.SOURCE_FOLDER) / 'conf'
-            / 'base' / 'credentials.yml')
-    AZURE_SECTION: ClassVar[str] = 'azure'
-    STORAGE_SECTION: ClassVar[str] = 'storage'
+    PIPELINE_FOLDER: ClassVar[str] = "pipeline"
+    PIPELINE_FILENAME: ClassVar[str] = "pipeline.yml"
+    ENV_FILENAME: ClassVar[str] = "env.json"
+    RUNCONFIG_FILENAME: ClassVar[str] = "runconfig.yml"
+    RUN_FILENAME: ClassVar[str] = "run.py"
+    RUN_FILEPATH: ClassVar[str] = str(Path(PIPELINE_FOLDER) / RUN_FILENAME)
+    COMPRESSED_PROJECT_FILENAME: ClassVar[str] = "code.zip"
+    RUN_TEMPLATED_CREDENTIALS_FILEPATH: ClassVar[str] = str(
+        PurePosixPath(FolderPreparator.SOURCE_FOLDER)
+        / "conf"
+        / "base"
+        / "credentials.yml"
+    )
+    AZURE_SECTION: ClassVar[str] = "azure"
+    STORAGE_SECTION: ClassVar[str] = "storage"
 
     project: str
     azure_pipeline: str
@@ -207,7 +210,7 @@ class PipelineConverter(ConverterStep):
         Returns:
             Pipeline: pipeline object.
         """
-        path = '.'.join([self.project, 'pipeline_registry'])
+        path = ".".join([self.project, "pipeline_registry"])
         module = import_module(path)
         return module.register_pipelines()[self.pipeline]
 
@@ -221,7 +224,7 @@ class PipelineConverter(ConverterStep):
         Returns:
             str
         """
-        return re.sub(r'[^a-zA-Z0-9]', '_', conn)
+        return re.sub(r"[^a-zA-Z0-9]", "_", conn)
 
     @classmethod
     def get_normalized_outputs(cls, node: Node) -> List[str]:
@@ -260,11 +263,10 @@ class PipelineConverter(ConverterStep):
         Returns:
             str
         """
-        name = node._name
-        if name:
-            return name
-        else:
-            raise KeyError(f'node "{node.name}" not named')
+        name = node.name
+        if name is None:
+            raise ValueError(f'node "{node.name}" not named')
+        return name
 
     def _add_step(self, node: Node, all_outputs: Set[str]):
         """Adds a step dict given a node.
@@ -275,36 +277,28 @@ class PipelineConverter(ConverterStep):
         """
         name = self.get_step_name(node)
         self.steps[name] = {
-            'name': name,
-            'script_name': self.RUN_FILENAME,
-            'allow_reuse': False,
-            'runconfig': 'runconfig.yml',
-            'source_directory': self.PIPELINE_FOLDER,
-            'type': 'PythonScriptStep',
-            'arguments': ['--pipeline', self.pipeline, '--node', name]
+            "name": name,
+            "script_name": self.RUN_FILENAME,
+            "allow_reuse": False,
+            "runconfig": "runconfig.yml",
+            "source_directory": self.PIPELINE_FOLDER,
+            "type": "PythonScriptStep",
+            "arguments": ["--pipeline", self.pipeline, "--node", name],
         }
 
         # get connections only
-        inputs = [
-            i for i in self.get_normalized_inputs(node) if i in all_outputs
-        ]
+        inputs = [i for i in self.get_normalized_inputs(node) if i in all_outputs]
         if inputs:
-            self.steps[name]['inputs'] = {i: {'source': i} for i in inputs}
+            self.steps[name]["inputs"] = {i: {"source": i} for i in inputs}
 
         outputs = self.get_normalized_outputs(node)
         if outputs:
-            self.steps[name]['outputs'] = {
-                o: {
-                    'destination': o
-                }
-                for o in outputs
-            }
+            self.steps[name]["outputs"] = {o: {"destination": o} for o in outputs}
 
     def _add_steps(self):
         """Adds the nodes from the pipeline as step dicts."""
         pipeline = self.pipeline_object
-        outputs = [self._normalize_connector(o)
-                   for o in pipeline.all_outputs()]
+        outputs = [self._normalize_connector(o) for o in pipeline.all_outputs()]
         for node in pipeline.nodes:
             self._add_step(node, outputs)
 
@@ -315,19 +309,19 @@ class PipelineConverter(ConverterStep):
     def _build_pipeline(self) -> _PipePipeline:
         self._add_steps()
         return {
-            'pipeline': {
-                'name': self.project,
-                'description': self.description,
-                'default_compute': self.compute,
-                'steps': self.steps,
+            "pipeline": {
+                "name": self.project,
+                "description": self.description,
+                "default_compute": self.compute,
+                "steps": self.steps,
             }
         }
 
     def _build_env(self) -> _PipeEnv:
-        return {'name': self.environment}
+        return {"name": self.environment}
 
     def _build_runconfig(self) -> _PipeRunConfig:
-        return {'environment': self.ENV_FILENAME}
+        return {"environment": self.ENV_FILENAME}
 
     def _save_run(self):
         writestr(self.RUN_FILEPATH, self._build_run())
@@ -361,42 +355,42 @@ class PipelineConverter(ConverterStep):
     def _prepare_folder(self):
         os.mkdir(self.PIPELINE_FOLDER)
         shutil.make_archive(
-            *self.COMPRESSED_PROJECT_FILENAME.split('.'), self.SOURCE_FOLDER
+            *self.COMPRESSED_PROJECT_FILENAME.split("."), self.SOURCE_FOLDER
         )
         shutil.move(self.COMPRESSED_PROJECT_FILENAME, self.PIPELINE_FOLDER)
 
     def _submit_update(self):
         self.azml(
-            'pipeline',
-            'update-draft',
-            '--name',
+            "pipeline",
+            "update-draft",
+            "--name",
             self.azure_pipeline,
-            '--experiment_name',
+            "--experiment_name",
             self.experiment,
-            '--pipeline-yaml',
+            "--pipeline-yaml",
             self.PIPELINE_FILENAME,
-            '--continue',
-            'False',
-            '--pipeline-draft-id',
+            "--continue",
+            "False",
+            "--pipeline-draft-id",
             self.pipeline_id,
-            json=True
+            json=True,
         )
 
     def _submit_create(self):
         call_json: _PipeCLIDraft = self.azml(
-            'pipeline',
-            'create-draft',
-            '--name',
+            "pipeline",
+            "create-draft",
+            "--name",
             self.azure_pipeline,
-            '--experiment_name',
+            "--experiment_name",
             self.experiment,
-            '--pipeline-yaml',
+            "--pipeline-yaml",
             self.PIPELINE_FILENAME,
-            '--continue',
-            'False',
-            json=True
+            "--continue",
+            "False",
+            json=True,
         )
-        self.pipeline_id = call_json['Id']
+        self.pipeline_id = call_json["Id"]
 
     def submit(self) -> dict:
         """Submits the pipeline to AzureML.
@@ -406,10 +400,10 @@ class PipelineConverter(ConverterStep):
         """
         self._fetch_pipeline_id()
         if self.pipeline_id:
-            self.log('info', 'pipeline draft already exists, updating it')
+            self.log("info", "pipeline draft already exists, updating it")
             self._submit_update()
         else:
-            self.log('info', 'pipeline draft doesn\'t exist, creating it')
+            self.log("info", "pipeline draft doesn't exist, creating it")
             self._submit_create()
 
     def run(self) -> dict:
@@ -421,7 +415,7 @@ class PipelineConverter(ConverterStep):
         self._prepare_folder()
         self.save()
         self.submit()
-        return {'pipeline_id': self.pipeline_id}
+        return {"pipeline_id": self.pipeline_id}
 
 
 @dataclass

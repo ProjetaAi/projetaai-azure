@@ -28,10 +28,11 @@ from projetaai_azure._framework.cli.step import pipe
 from azureml.core import Workspace, Datastore
 from azureml.pipeline.core.schedule import Schedule
 
-sys.path.append(str(Path(getcwd()) / 'src'))
+sys.path.append(str(Path(getcwd()) / "src"))
 
-WeekDays = Literal['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday',
-                   'Friday', 'Saturday']
+WeekDays = Literal[
+    "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
+]
 
 
 @dataclass
@@ -52,33 +53,41 @@ class _SettingsReader(BasicAzureMLSettingsReader):
 
     @property
     def argv_requirements(self) -> List[_ArgvSpecification]:
-        return ([{
-            'target': 'published_id',
-            'type': str,
-        }, {
-            'target': 'experiment',
-            'type': str,
-        }, {
-            'target': 'datastore_name',
-            'type': str,
-        }, {
-            'target': 'datastore_path',
-            'type': str,
-            'default': lambda _: '.',
-        }, {
-            'target': 'schedule_name',
-            'type': str,
-            'default': lambda _: 'my-trigger-' + datetime.datetime.now().
-            strftime('%Y%m%d%H%M'),
-        }, {
-            'target': 'description',
-            'type': str,
-            'default': lambda _: 'A trigger created by projetaai',
-        }, {
-            'target': 'polling_interval',
-            'type': str,
-            'default': lambda _: 30,
-        }])
+        return [
+            {
+                "target": "published_id",
+                "type": str,
+            },
+            {
+                "target": "experiment",
+                "type": str,
+            },
+            {
+                "target": "datastore_name",
+                "type": str,
+            },
+            {
+                "target": "datastore_path",
+                "type": str,
+                "default": lambda _: ".",
+            },
+            {
+                "target": "schedule_name",
+                "type": str,
+                "default": lambda _: "my-trigger-"
+                + datetime.datetime.now().strftime("%Y%m%d%H%M"),
+            },
+            {
+                "target": "description",
+                "type": str,
+                "default": lambda _: "A trigger created by projetaai",
+            },
+            {
+                "target": "polling_interval",
+                "type": str,
+                "default": lambda _: 30,
+            },
+        ]
 
 
 @dataclass
@@ -101,10 +110,9 @@ class Trigger(ConverterStep):
             check
     """
 
-    SCHEDULE_FILENAME: ClassVar[str] = 'schedule.yml'
+    SCHEDULE_FILENAME: ClassVar[str] = "schedule.yml"
     TIMEOUT: ClassVar[int] = 3600
-    AZ_MIN_DATE: ClassVar[str] = datetime.datetime(2000, 1, 1, 0, 0,
-                                                   0).isoformat()
+    AZ_MIN_DATE: ClassVar[str] = datetime.datetime(2000, 1, 1, 0, 0, 0).isoformat()
 
     workspace_instance: Workspace
 
@@ -117,8 +125,7 @@ class Trigger(ConverterStep):
     polling_interval: int
 
     old_published_id: str = None
-    old_schedule_instance: Union[Schedule,
-                                 None] = field(init=False, default=None)
+    old_schedule_instance: Union[Schedule, None] = field(init=False, default=None)
 
     def _find_schedule(self):
         schedules = Schedule.list(
@@ -143,7 +150,7 @@ class Trigger(ConverterStep):
             experiment_name=self.experiment,
             datastore=self.datastore,
             path_on_datastore=self.datastore_path,
-            polling_interval=self.polling_interval
+            polling_interval=self.polling_interval,
         )
 
     def run(self):
@@ -162,5 +169,5 @@ def main():
     )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -1,12 +1,8 @@
 """Package for type annotations."""
 from typing import Callable, Tuple, TypeVar, Dict, List, Union
-from kedro.extras.datasets.pandas import (
-    CSVDataSet,
-    ExcelDataSet,
-    ParquetDataSet
-)
+from kedro.extras.datasets.pandas import CSVDataSet, ExcelDataSet, ParquetDataSet
 
-T = TypeVar('T')
+T = TypeVar("T")
 Args = Tuple[T]
 Kwargs = Dict[str, T]
 OutputsSpec = Union[List[str], Dict[str, str]]

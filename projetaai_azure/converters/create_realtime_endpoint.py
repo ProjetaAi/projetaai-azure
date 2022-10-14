@@ -26,7 +26,7 @@ from azureml.core import Workspace, Environment
 from azureml.core.webservice import AksWebservice
 from azureml.core.model import Model, InferenceConfig
 
-sys.path.append(str(Path(getcwd()) / 'src'))
+sys.path.append(str(Path(getcwd()) / "src"))
 
 
 @dataclass
@@ -48,36 +48,45 @@ class _SettingsReader(BasicAzureMLSettingsReader):
 
     @property
     def argv_requirements(self) -> List[_ArgvSpecification]:
-        return ([{
-            'target': 'aks_target_name',
-            'type': str,
-        }, {
-            'target': 'environment_name',
-            'type': str,
-        }, {
-            'target': 'source_directory',
-            'type': str,
-            'default': lambda _: '.',
-        }, {
-            'target': 'entry_script',
-            'type': str,
-        }, {
-            'target': 'cpu_cores',
-            'type': str,
-            'default': lambda _: 1,
-        }, {
-            'target': 'memory_gb',
-            'type': str,
-            'default': lambda _: 1,
-        }, {
-            'target': 'model',
-            'type': str,
-        }, {
-            'target': 'endpoint_name',
-            'type': str,
-            'default': lambda _: 'my-realtime-endpoint-' + datetime.datetime.
-            now().strftime('%Y%m%d%H%M'),
-        }])
+        return [
+            {
+                "target": "aks_target_name",
+                "type": str,
+            },
+            {
+                "target": "environment_name",
+                "type": str,
+            },
+            {
+                "target": "source_directory",
+                "type": str,
+                "default": lambda _: ".",
+            },
+            {
+                "target": "entry_script",
+                "type": str,
+            },
+            {
+                "target": "cpu_cores",
+                "type": str,
+                "default": lambda _: 1,
+            },
+            {
+                "target": "memory_gb",
+                "type": str,
+                "default": lambda _: 1,
+            },
+            {
+                "target": "model",
+                "type": str,
+            },
+            {
+                "target": "endpoint_name",
+                "type": str,
+                "default": lambda _: "my-realtime-endpoint-"
+                + datetime.datetime.now().strftime("%Y%m%d%H%M"),
+            },
+        ]
 
 
 @dataclass
@@ -109,9 +118,7 @@ class CreateRealTimeEndpoint(ConverterStep):
     endpoint_name: str
 
     def _get_basic_deploy_info(self):
-        self.aks_target = AksCompute(
-            self.workspace_instance, self.aks_target_name
-        )
+        self.aks_target = AksCompute(self.workspace_instance, self.aks_target_name)
         self.service_env = Environment(name=self.environment_name)
         self.model = self.workspace_instance.models[self.model_name]
 
@@ -119,7 +126,7 @@ class CreateRealTimeEndpoint(ConverterStep):
         self.classifier_inference_config = InferenceConfig(
             source_directory=self.source_directory,
             entry_script=self.entry_script,
-            environment=self.service_env
+            environment=self.service_env,
         )
 
         self.classifier_deploy_config = AksWebservice.deploy_configuration(
@@ -133,7 +140,7 @@ class CreateRealTimeEndpoint(ConverterStep):
             models=[self.model],
             inference_config=self.classifier_inference_config,
             deployment_config=self.classifier_deploy_config,
-            deployment_target=self.aks_target
+            deployment_target=self.aks_target,
         )
         print("The service is being deployed. Please wait...")
         self.service.wait_for_deployment(show_output=True)
@@ -153,5 +160,5 @@ def main():
     )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

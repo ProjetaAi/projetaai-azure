@@ -13,4 +13,4 @@ def disable_logging(doctest_namespace: dict):
 @pytest.fixture(autouse=True)
 def add_libs(doctest_namespace: dict):
     """Add libraries to doctest namespace."""
-    doctest_namespace['pprint'] = pprint
+    doctest_namespace["pprint"] = pprint

@@ -24,12 +24,15 @@ from projetaai_azure._framework.cli.step import pipe
 
 from azure.ai.ml import MLClient
 from azure.ai.ml.entities import (
-    BatchEndpoint, BatchDeployment, Model, BatchRetrySettings
+    BatchEndpoint,
+    BatchDeployment,
+    Model,
+    BatchRetrySettings,
 )
 from azure.identity import DefaultAzureCredential
 from azure.ai.ml.constants import BatchDeploymentOutputAction
 
-sys.path.append(str(Path(getcwd()) / 'src'))
+sys.path.append(str(Path(getcwd()) / "src"))
 
 
 @dataclass
@@ -61,62 +64,78 @@ class _SettingsReader(BasicAzureMLSettingsReader):
 
     @property
     def argv_requirements(self) -> List[_ArgvSpecification]:
-        return ([{
-            'target': 'subscription_id',
-            'type': str,
-        }, {
-            'target': 'resource_group',
-            'type': str,
-        }, {
-            'target': 'workspace_name',
-            'type': str,
-        }, {
-            'target': 'batch_endpoint_name',
-            'type': str,
-            'default': lambda _: 'my-batch-endpoint-' + datetime.datetime.now()
-            .strftime('%Y%m%d%H%M'),
-        }, {
-            'target': 'description',
-            'type': str,
-            'default': lambda _: 'A batch endpoint created by projetaai',
-        }, {
-            'target': 'compute',
-            'type': str,
-        }, {
-            'target': 'model_path',
-            'type': str,
-        }, {
-            'target': 'environment_name',
-            'type': str,
-        }, {
-            'target': 'environment_label',
-            'type': str,
-            'default': lambda _: 'latest',
-        }, {
-            'target': 'deployment_name',
-            'type': str,
-            'default': lambda _: 'my-batch-deploy-' + datetime.datetime.now().
-            strftime('%Y%m%d%H%M'),
-        }, {
-            'target': 'deployment_description',
-            'type': str,
-            'default': lambda _: 'A batch deployment created by projetaai',
-        }, {
-            'target': 'scoring_script',
-            'type': str,
-        }, {
-            'target': 'instance_count',
-            'type': int,
-            'default': lambda _: 1,
-        }, {
-            'target': 'max_concurrency_per_instance',
-            'type': int,
-            'default': lambda _: 2,
-        }, {
-            'target': 'mini_batch_size',
-            'type': int,
-            'default': lambda _: 10,
-        }])
+        return [
+            {
+                "target": "subscription_id",
+                "type": str,
+            },
+            {
+                "target": "resource_group",
+                "type": str,
+            },
+            {
+                "target": "workspace_name",
+                "type": str,
+            },
+            {
+                "target": "batch_endpoint_name",
+                "type": str,
+                "default": lambda _: "my-batch-endpoint-"
+                + datetime.datetime.now().strftime("%Y%m%d%H%M"),
+            },
+            {
+                "target": "description",
+                "type": str,
+                "default": lambda _: "A batch endpoint created by projetaai",
+            },
+            {
+                "target": "compute",
+                "type": str,
+            },
+            {
+                "target": "model_path",
+                "type": str,
+            },
+            {
+                "target": "environment_name",
+                "type": str,
+            },
+            {
+                "target": "environment_label",
+                "type": str,
+                "default": lambda _: "latest",
+            },
+            {
+                "target": "deployment_name",
+                "type": str,
+                "default": lambda _: "my-batch-deploy-"
+                + datetime.datetime.now().strftime("%Y%m%d%H%M"),
+            },
+            {
+                "target": "deployment_description",
+                "type": str,
+                "default": lambda _: "A batch deployment created by projetaai",
+            },
+            {
+                "target": "scoring_script",
+                "type": str,
+            },
+            {
+                "target": "instance_count",
+                "type": int,
+                "default": lambda _: 1,
+            },
+            {
+                "target": "max_concurrency_per_instance",
+                "type": int,
+                "default": lambda _: 2,
+            },
+            {
+                "target": "mini_batch_size",
+                "type": int,
+                "default": lambda _: 10,
+            },
+        ]
 
 
 @dataclass
@@ -165,8 +184,10 @@ class CreateBatchEndpoint(ConverterStep):
 
     def _set_ml_client(self):
         self.ml_client = MLClient(
-            DefaultAzureCredential(), self.subscription_id,
-            self.resource_group, self.workspace_name
+            DefaultAzureCredential(),
+            self.subscription_id,
+            self.resource_group,
+            self.workspace_name,
         )
 
     def _create_endpoint(self):
@@ -212,12 +233,8 @@ class CreateBatchEndpoint(ConverterStep):
 
 def main(**kwargs: Any):
     """Creates a batch endpoint for AzureML."""
-    pipe(
-        _SettingsReader,
-        CreateBatchEndpoint,
-        initial_dict=kwargs
-    )
+    pipe(_SettingsReader, CreateBatchEndpoint, initial_dict=kwargs)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -16,13 +16,13 @@ class ConverterStep(Step):
     resource_group: str
     workspace: str
 
-    CONVERTER_FOLDER: ClassVar[str] = '.kedroazml'
-    SOURCE_FOLDER: ClassVar[str] = 'src'
-    TEMPLATES_FOLDER: ClassVar[str] = str(Path(__file__).parent / 'templates')
+    CONVERTER_FOLDER: ClassVar[str] = ".kedroazml"
+    SOURCE_FOLDER: ClassVar[str] = "src"
+    TEMPLATES_FOLDER: ClassVar[str] = str(Path(__file__).parent / "templates")
 
     @staticmethod
     def _parse_std(std: bytes) -> str:
-        return std.decode().replace('\r', '')
+        return std.decode().replace("\r", "")
 
     def system(self, *commands: str, json: bool = False) -> Union[None, Any]:
         """Calls system commands.
@@ -37,25 +37,28 @@ class ConverterStep(Step):
         Returns:
             Union[None, Any]: json output of the command.
         """
-        cmdstr = ' '.join(commands)
-        cmd = subprocess.run(cmdstr, shell=True, stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE)
-        out, err, status = (self._parse_std(cmd.stdout),
-                            self._parse_std(cmd.stderr),
-                            cmd.returncode)
+        cmdstr = " ".join(commands)
+        cmd = subprocess.run(
+            cmdstr, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        )
+        out, err, status = (
+            self._parse_std(cmd.stdout),
+            self._parse_std(cmd.stderr),
+            cmd.returncode,
+        )
 
         if status != 0:
             raise SystemExit(
-                f'STDOUT:\n{out}\n\n'
-                f'STDERR:\n{err}\n\n'
+                f"STDOUT:\n{out}\n\n"
+                f"STDERR:\n{err}\n\n"
                 f'"{cmdstr}" did not complete'
             )
 
         print(out)
         if json:
             # parses not json pure json outputs
-            match = re.search(r'(\[\n)|(\{\n)', out)
-            out = out[match.start(0):]
+            match = re.search(r"(\[\n)|(\{\n)", out)
+            out = out[match.start(0) :]  # noqa: E203
             return JSON.loads(out)
         else:
             return out
@@ -71,11 +74,11 @@ class ConverterStep(Step):
             Union[dict, None]: json output of the command.
         """
         return self.system(
-            'az ml',
+            "az ml",
             *commands,
-            '--resource-group',
+            "--resource-group",
             self.resource_group,
-            '--workspace',
+            "--workspace",
             self.workspace,
-            json=json
+            json=json,
         )

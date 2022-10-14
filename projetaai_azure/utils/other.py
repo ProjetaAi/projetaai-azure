@@ -45,7 +45,6 @@ def kwargs_only(original: Callable) -> Callable:
     parser = get_varargs_as_kwargs_parser(original)
 
     def decorator(f: Callable) -> Callable:
-
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             parse = parser(args, kwargs)
 
@@ -176,8 +175,8 @@ class FlagType:
     def __init__(self):
         """Initializes the object."""
         self.name = self.__class__.__name__
-        if self.name.endswith('Type'):
-            self.name = self.name.split('Type')[0]
+        if self.name.endswith("Type"):
+            self.name = self.name.split("Type")[0]
 
     def __str__(self) -> str:
         """Returns the name of the object.
@@ -196,9 +195,7 @@ class FlagType:
         return str(self)
 
 
-def filter_or_regex(
-    func: Union[Callable[[str], bool], str]
-) -> Callable[[str], bool]:
+def filter_or_regex(func: Union[Callable[[str], bool], str]) -> Callable[[str], bool]:
     """Returns the input function or creates a regex match function.
 
     Args:

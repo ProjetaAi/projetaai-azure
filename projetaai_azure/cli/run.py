@@ -28,8 +28,4 @@ class CreateJobInputs(CreateDraftInputs):
 @CreateJobInputs().click_command
 def create_job(**kwargs: Any):
     """Creates an AzureML job."""
-    pipe(
-        Authenticator,
-        JobCreator,
-        initial_dict=kwargs
-    )
+    pipe(Authenticator, JobCreator, initial_dict=kwargs)
