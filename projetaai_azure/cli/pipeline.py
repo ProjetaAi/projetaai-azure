@@ -1,20 +1,17 @@
 """Pipeline management scripts."""
 from dataclasses import dataclass
 from typing import Any, List, get_args
-from projetaai_azure.converters.config import (
-    _ArgvSpecification,
-    Authenticator,
-    BasicAzureMLSettingsReader,
-)
-from projetaai_azure.converters.environment import EnvironmentCreator
-from projetaai_azure.converters.pipeline_converter import (
-    Cleaner,
-    FolderPreparator,
-    PipelineConverter,
-)
-from kedro_projetaai.utils.script import pipe
-from kedro_projetaai.packing import suggestions
 
+from kedro_projetaai.packing import suggestions
+from kedro_projetaai.utils.script import pipe
+
+from projetaai_azure.converters.config import (Authenticator,
+                                               BasicAzureMLSettingsReader,
+                                               _ArgvSpecification)
+from projetaai_azure.converters.environment import EnvironmentCreator
+from projetaai_azure.converters.pipeline_converter import (Cleaner,
+                                                           FolderPreparator,
+                                                           PipelineConverter)
 from projetaai_azure.converters.publisher import Publisher
 from projetaai_azure.converters.scheduler import Scheduler, WeekDays
 from projetaai_azure.utils.iterable import unique
@@ -48,7 +45,7 @@ class CreateDraftInputs(BasicAzureMLSettingsReader):
             str: The experiment name.
         """
         return suggestions.get_experiment_name(
-            project=filled['project'], branch=filled.get('branch')
+            project=filled['project'], branch=filled.get('branch')  
         )
 
     @staticmethod
@@ -102,7 +99,7 @@ class CreateDraftInputs(BasicAzureMLSettingsReader):
                 'type': str,
                 'default': self.azure_pipeline_default,
             },
-        ])
+        ])  # type: ignore
 
 
 @CreateDraftInputs().click_command
@@ -136,7 +133,7 @@ class PublishDraftInputs(CreateDraftInputs):
     pass
 
 
-@PublishDraftInputs().click_command
+@PublishDraftInputs().click_command 
 def publish(**kwargs: Any):
     """Publishes an Azure pipeline."""
     pipe(
@@ -200,7 +197,7 @@ class SchedulePublishedInputs(CreateDraftInputs):
                      f'{get_args(WeekDays)}, pass it multiple times for '
                      'multiple days e.g. "--day Monday --day Tuesday". '
                      'Defaults to "Sunday".'),
-        }]
+        }]  # type: ignore
 
 
 @SchedulePublishedInputs().click_command

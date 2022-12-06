@@ -250,9 +250,12 @@ class EnvironmentCreator(ConverterStep):
 
     def submit(self):
         """Pushes the environment to Azure ML."""
-        self.azml(
-            'environment', 'register', '--directory', self.ENVIRONMENT_FOLDER
-        )
+        
+        Environment.load_from_directory(self.ENVIRONMENT_FOLDER)
+        
+        # self.azml(
+            # 'environment', 'register', '--directory', self.ENVIRONMENT_FOLDER
+        # )
 
     def clean(self):
         """Removes environment files."""

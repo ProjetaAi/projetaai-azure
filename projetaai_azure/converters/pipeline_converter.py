@@ -6,35 +6,27 @@ Note:
     Check the reference for it out in this link:
     https://docs.microsoft.com/en-us/cli/azure/ml(v1)?view=azure-cli-latest
 """
-from __future__ import print_function, unicode_literals, annotations
+from __future__ import annotations, print_function, unicode_literals
+
+import os
+import re
+import shutil
+import sys
 from dataclasses import dataclass, field
 from importlib import import_module
 from os import getcwd
-import os
 from pathlib import Path, PurePosixPath
-import re
-from typing import (
-    ClassVar,
-    Dict,
-    List,
-    Literal,
-    Set,
-    TypedDict,
-    Union,
-)
+from typing import ClassVar, Dict, List, Literal, Set, TypedDict, Union
+
+from azureml.core import Workspace
+from azureml.pipeline.core import PipelineDraft
 from kedro.pipeline import Pipeline
 from kedro.pipeline.node import Node
-import sys
-import shutil
+
+from azureml.pipeline.core import Pipeline as PipelineAzureML
 
 from projetaai_azure.converters.step import ConverterStep
-from projetaai_azure.utils.io import (
-    writejson,
-    writestr,
-    writeyml,
-)
-from azureml.pipeline.core import PipelineDraft
-from azureml.core import Workspace
+from projetaai_azure.utils.io import writejson, writestr, writeyml
 
 sys.path.append(str(Path(getcwd()) / 'src'))
 
@@ -366,39 +358,55 @@ class PipelineConverter(ConverterStep):
         shutil.move(self.COMPRESSED_PROJECT_FILENAME, self.PIPELINE_FOLDER)
 
     def _submit_update(self):
-        self.azml(
-            'pipeline',
-            'update-draft',
-            '--name',
-            self.azure_pipeline,
-            '--experiment_name',
-            self.experiment,
-            '--pipeline-yaml',
-            self.PIPELINE_FILENAME,
-            '--continue',
-            'False',
-            '--pipeline-draft-id',
-            self.pipeline_id,
-            json=True
-        )
+
+        pipeline_draft = PipelineDraft.get(self.workspace_instance, self.pipeline_id )
+
+        pipeline = PipelineAzureML.load_yaml(self.workspace_instance,self.PIPELINE_FILENAME)
+
+        pipeline_draft.update(pipeline=pipeline, 
+                             name=self.azure_pipeline, 
+                             experiment_name=self.experiment,
+                             continue_on_step_failure=False) 
+        # self.azml(
+        #     'pipeline',
+        #     'update-draft',
+        #     '--name',
+        #     self.azure_pipeline,
+        #     '--experiment_name',
+        #     self.experiment,
+        #     '--pipeline-yaml',
+        #     self.PIPELINE_FILENAME,
+        #     '--continue',
+        #     'False',
+        #     '--pipeline-draft-id',
+        #     self.pipeline_id,
+        #     json=True
+        # )
 
     def _submit_create(self):
-        call_json: _PipeCLIDraft = self.azml(
-            'pipeline',
-            'create-draft',
-            '--name',
-            self.azure_pipeline,
-            '--experiment_name',
-            self.experiment,
-            '--pipeline-yaml',
-            self.PIPELINE_FILENAME,
-            '--continue',
-            'False',
-            json=True
-        )
-        self.pipeline_id = call_json['Id']
 
-    def submit(self) -> dict:
+        pipeline = PipelineAzureML.load_yaml(self.workspace_instance,self.PIPELINE_FILENAME)
+        pipeline_draft = PipelineDraft.create(workspace = self.workspace_instance, 
+                                              pipeline = pipeline, 
+                                              name = self.azure_pipeline,
+                                              experiment_name = self.experiment,
+                                              continue_on_step_failure = False)
+        # call_json: _PipeCLIDraft = self.azml(
+        #     'pipeline',
+        #     'create-draft',
+        #     '--name',
+        #     self.azure_pipeline,
+        #     '--experiment_name',
+        #     self.experiment,
+        #     '--pipeline-yaml',
+        #     self.PIPELINE_FILENAME,
+        #     '--continue',
+        #     'False',
+        #     json=True
+        # )  # type: ignore
+        # self.pipeline_id = call_json['Id']
+
+    def submit(self) -> dict:  # type: ignore
         """Submits the pipeline to AzureML.
 
         Returns:
@@ -418,6 +426,7 @@ class PipelineConverter(ConverterStep):
         Returns:
             dict: Pipeline run id
         """
+
         self._prepare_folder()
         self.save()
         self.submit()

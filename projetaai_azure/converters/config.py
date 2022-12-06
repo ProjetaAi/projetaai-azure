@@ -358,7 +358,7 @@ class BasicAzureMLSettingsReader(BaseSettingsReader):
             'target': 'description',
             'file': self.SETUP_FILENAME,
             'path': 'metadata.description',
-        }]
+        }]  # type: ignore
 
     @property
     def file_specific_requirements(self) -> List[_FileSpecificSpecification]:

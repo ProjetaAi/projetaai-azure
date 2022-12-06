@@ -37,12 +37,17 @@ class JobCreator(ConverterStep):
 
     def submit(self):
         """Submit the job to AzureML."""
-        self.azml(
-            'pipeline',
-            'submit-draft',
-            '--pipeline-draft-id',
-            self.pipeline_id,
-        )
+
+        pipeline_draft = PipelineDraft.get(self.workspace_instance, self.pipeline_id)
+        pipeline_draft.submit_run()
+
+
+        # self.azml(
+        #     'pipeline',
+        #     'submit-draft',
+        #     '--pipeline-draft-id',
+        #     self.pipeline_id,
+        # )
 
     def run(self):
         """Creates an AzureML job from a pipeline draft."""

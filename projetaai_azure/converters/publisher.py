@@ -6,17 +6,16 @@ Note:
     Check the reference for it out in this link:
     https://docs.microsoft.com/en-us/cli/azure/ml(v1)?view=azure-cli-latest
 """
-from __future__ import print_function, unicode_literals, annotations
+from __future__ import annotations, print_function, unicode_literals
+
 from dataclasses import dataclass, field
 from typing import Union
-from projetaai_azure.converters.step import ConverterStep
 
 from azureml.core import Workspace
-from azureml.pipeline.core import (
-    PipelineEndpoint,
-    PublishedPipeline,
-    PipelineDraft
-)
+from azureml.pipeline.core import (PipelineDraft, PipelineEndpoint,
+                                   PublishedPipeline)
+
+from projetaai_azure.converters.step import ConverterStep
 
 
 @dataclass
@@ -48,24 +47,37 @@ class Publisher(ConverterStep):
     just_created_endpoint: bool = field(init=False, default=False)
     pipeline_id: str = field(init=False)
 
+    pipeline_draft: PipelineDraft = field(init=False)
+
     def _fetch_draft(self):
-        drafts = PipelineDraft.list(self.workspace_instance)
+        drafts = PipelineDraft.list(self.workspace_instance) 
         for draft in drafts:
             if draft.name == self.azure_pipeline:
                 self.pipeline_id = draft.id
+                print(self.pipeline_id, '\n')
                 break
         else:
             raise RuntimeError('No pipeline draft found to publish')
 
     def _publish_draft(self):
-        call_json = self.azml(
-            'pipeline',
-            'publish-draft',
-            '--pipeline-draft-id',
-            self.pipeline_id,
-            json=True
-        )
-        self.published_id = call_json['Id']
+        # print(self.pipeline_id, '\n')
+        # print(self.workspace, '\n')
+        # print(self.workspace_instance, '\n')
+        # teste =  PublishedPipeline.get(
+        #     self.workspace_instance, self.pipeline_id
+        # )
+
+        self.pipeline_draft = PipelineDraft.get(self.workspace_instance, self.pipeline_id)
+        self.published_instance = PipelineDraft.publish(self.pipeline_draft)
+        
+        # call_json = self.azml(
+        #     'pipeline',
+        #     'publish-draft',
+        #     '--pipeline-draft-id',
+        #     self.pipeline_id,
+        #     json=True
+        # )
+        # self.published_id = call_json['Id']
 
     def _instance_published(self):
         self.published_instance = PublishedPipeline.get(
@@ -125,9 +137,8 @@ class Publisher(ConverterStep):
         """
         self._fetch_draft()
         self._publish_draft()
-        self._instance_published()
         self.find_or_create_endpoint()
-        output = {'published_id': self.published_id}
+        output = {'published_id': self.published_instance.id}
         if self.just_created_endpoint:
             self.log('info', 'endpoint doesn\'t exist, creating it')
         else:

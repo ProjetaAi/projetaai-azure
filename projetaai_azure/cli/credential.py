@@ -4,7 +4,6 @@ from projetaai_azure.utils.constants import CWD
 from kedro_projetaai.utils.io import upwriteyml
 from kedro_projetaai.utils.iterable import mergedicts
 
-
 @click.command
 @click.option('--name', prompt='Credential name (can be anything you want)',
               help='Name of the credential')
