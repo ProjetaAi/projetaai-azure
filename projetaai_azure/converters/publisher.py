@@ -13,7 +13,7 @@ from typing import Union
 
 from azureml.core import Workspace
 from azureml.pipeline.core import (PipelineDraft, PipelineEndpoint,
-                                   PublishedPipeline)
+                                   PublishedPipeline, Schedule)
 
 from projetaai_azure.converters.step import ConverterStep
 
@@ -54,18 +54,11 @@ class Publisher(ConverterStep):
         for draft in drafts:
             if draft.name == self.azure_pipeline:
                 self.pipeline_id = draft.id
-                print(self.pipeline_id, '\n')
                 break
         else:
             raise RuntimeError('No pipeline draft found to publish')
 
     def _publish_draft(self):
-        # print(self.pipeline_id, '\n')
-        # print(self.workspace, '\n')
-        # print(self.workspace_instance, '\n')
-        # teste =  PublishedPipeline.get(
-        #     self.workspace_instance, self.pipeline_id
-        # )
 
         self.pipeline_draft = PipelineDraft.get(self.workspace_instance, self.pipeline_id)
         self.published_instance = PipelineDraft.publish(self.pipeline_draft)
@@ -95,7 +88,13 @@ class Publisher(ConverterStep):
             for endpoint in PipelineEndpoint.list(self.workspace_instance)
             if endpoint.name == self.azure_pipeline
         ]
+
         if endpoints:
+            for pipeline in PipelineEndpoint.get(self.workspace_instance,name = self.azure_pipeline).list_pipelines():
+                for schedule in Schedule.get_schedules_for_pipeline_id(self.workspace_instance, pipeline.id):
+                    schedule.disable()
+                pipeline.disable()
+
             self.just_created_endpoint = False
             return endpoints[0]
         else:
@@ -118,12 +117,15 @@ class Publisher(ConverterStep):
 
     def find_or_create_endpoint(self):
         """Finds or creates an endpoint with the same name as the pipeline."""
-        self.endpoint = (
-            self.find_existing_endpoint() or self.create_new_endpoint()
-        )
+        x = self.find_existing_endpoint()
+        if x is None:
+            x = self.create_new_endpoint()
+
+        self.endpoint = (x) # type: ignore
 
     def _instance_old_published(self):
         self.old_published_instance = self.endpoint.get_pipeline()
+        self.old_published_instance.disable()
 
     def _replace_endpoint_default_pipeline(self):
         self.endpoint.add_default(self.published_instance)
@@ -139,6 +141,7 @@ class Publisher(ConverterStep):
         self._publish_draft()
         self.find_or_create_endpoint()
         output = {'published_id': self.published_instance.id}
+        
         if self.just_created_endpoint:
             self.log('info', 'endpoint doesn\'t exist, creating it')
         else:

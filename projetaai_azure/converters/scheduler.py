@@ -76,9 +76,6 @@ class Scheduler(ConverterStep):
     old_schedule_instance: Union[Schedule,
                                  None] = field(init=False, default=None)
                         
-
-
-
     TEMPLATE_FILE_DICT = {
          'Minute': '''
                 scheduler:
@@ -124,6 +121,7 @@ class Scheduler(ConverterStep):
     def _fetch_published(self):
         """Fetches the published pipeline id."""
         try:
+            print(self.azure_pipeline)
             endpoint = PipelineEndpoint.get(self.workspace_instance,
                                             name=self.azure_pipeline)
             self.pipeline_published = endpoint.get_pipeline()
