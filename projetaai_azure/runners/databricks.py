@@ -21,7 +21,6 @@ def is_databricks_project(folder: Path = None) -> bool:
 
 def configure_databricks_connect(
     workspace: Workspace,
-    config: ConfigLoader,
     folder: Path = None,
     spark_config_path: Path = None,
     dot_db_connect_folder: Path = None
@@ -61,6 +60,7 @@ def configure_databricks_connect(
         dot_db_connect_folder = dot_db_connect_folder or Path('/root')
         kv = Keyvault(workspace)
 
+        config = ConfigLoader()
         spark_config = config.get("spark*", "spark*/**")
 
         _host = spark_config["spark.databricks.service.address"]
