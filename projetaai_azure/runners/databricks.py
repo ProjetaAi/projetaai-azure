@@ -69,6 +69,14 @@ def configure_databricks_connect(
         _port = spark_config["spark.databricks.service.port"]
         _token_string = spark_config["spark.databricks.service.token"]
 
+        print('\n\n\n\n AQUI \n\n\n\n')
+        print(_host)
+        print(_cluster_id)
+        print(_org_id)
+        print(_port)
+        print(_token_string)
+        print('\n\n\n\n AQUI \n\n\n\n')
+
         connect_config = {
             'host': _host,
             'token': kv[str(_token_string)],
