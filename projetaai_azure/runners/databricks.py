@@ -3,7 +3,8 @@ import json
 from azureml.core import Workspace
 from pathlib import Path
 from projetaai_azure.runners.keyvault import Keyvault
-from kedro.config import ConfigLoader
+from projetaai_azure.utils.io import readyml
+from typing import ClassVar
 
 
 def is_databricks_project(folder: Path = None) -> bool:
@@ -22,7 +23,6 @@ def is_databricks_project(folder: Path = None) -> bool:
 def configure_databricks_connect(
     workspace: Workspace,
     folder: Path = None,
-    spark_config_path: Path = None,
     dot_db_connect_folder: Path = None
 ):
     """Sets up Databricks Connect.
@@ -60,8 +60,11 @@ def configure_databricks_connect(
         dot_db_connect_folder = dot_db_connect_folder or Path('/root')
         kv = Keyvault(workspace)
 
-        config = ConfigLoader()
-        spark_config = config.get("spark*", "spark*/**")
+        SPARK_CONFIG_FILE_PATH: ClassVar[str] =  str(
+            Path('conf') / 'base' / 'spark.yml'
+        )
+
+        spark_config = readyml(SPARK_CONFIG_FILE_PATH)
 
         _host = spark_config["spark.databricks.service.address"]
         _cluster_id = spark_config["spark.databricks.service.clusterId"]
