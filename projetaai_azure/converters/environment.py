@@ -251,7 +251,8 @@ class EnvironmentCreator(ConverterStep):
     def submit(self):
         """Pushes the environment to Azure ML."""
         
-        Environment.load_from_directory(self.ENVIRONMENT_FOLDER)
+        env = Environment.load_from_directory(self.ENVIRONMENT_FOLDER)
+        env.build(self.workspace_instance)
         
         # self.azml(
             # 'environment', 'register', '--directory', self.ENVIRONMENT_FOLDER

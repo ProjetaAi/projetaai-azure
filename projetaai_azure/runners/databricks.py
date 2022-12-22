@@ -78,6 +78,9 @@ def configure_databricks_connect(
         print(_org_id)
         print(_port)
         print(_token_string)
+        print('\n~~~~\n')
+        print(kv[str(_token_string)])
+        print('\n~~~~')
         print('\n\n\n\n AQUI \n\n\n\n')
 
         connect_config = {
