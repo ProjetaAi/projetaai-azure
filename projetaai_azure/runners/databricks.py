@@ -30,7 +30,7 @@ def configure_databricks_connect(
     This function writes the Databricks connect configuration json, called
     `.databricks-connect`. This file contains the information to connect to
     Databricks, which are host, token, org_id, cluster_id and port.
-    The token must be stored in the keyvault. Its string, valueto look for
+    The token must be stored in the keyvault. Its string, value to look for
     in the KV, must be set on the spark.yaml in conf/base as well as all other
     informations.
 
@@ -51,8 +51,6 @@ def configure_databricks_connect(
     Args:
         workspace (Workspace): Azure workspace.
         folder (Path, optional): Project root folder. Defaults to Path.cwd().
-        spark_config_path (Path, optional): spark.yaml path. Defaults to
-              conf/base/spark.yaml in the project root
         dot_db_connect_folder (Path, optional): Folder to save
             `.databricks-connect`. Defaults to '/root'.
     """

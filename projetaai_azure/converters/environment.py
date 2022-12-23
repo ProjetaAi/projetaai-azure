@@ -253,10 +253,6 @@ class EnvironmentCreator(ConverterStep):
         
         env = Environment.load_from_directory(self.ENVIRONMENT_FOLDER)
         env.build(self.workspace_instance)
-        
-        # self.azml(
-            # 'environment', 'register', '--directory', self.ENVIRONMENT_FOLDER
-        # )
 
     def clean(self):
         """Removes environment files."""
