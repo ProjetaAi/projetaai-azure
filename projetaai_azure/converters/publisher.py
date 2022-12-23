@@ -50,7 +50,7 @@ class Publisher(ConverterStep):
     pipeline_draft: PipelineDraft = field(init=False)
 
     def _fetch_draft(self):
-        drafts = PipelineDraft.list(self.workspace_instance) 
+        drafts = PipelineDraft.list(self.workspace_instance)
         for draft in drafts:
             if draft.name == self.azure_pipeline:
                 self.pipeline_id = draft.id
@@ -60,17 +60,10 @@ class Publisher(ConverterStep):
 
     def _publish_draft(self):
 
-        self.pipeline_draft = PipelineDraft.get(self.workspace_instance, self.pipeline_id)
+        self.pipeline_draft = PipelineDraft.get(
+            self.workspace_instance, self.pipeline_id
+        )
         self.published_instance = PipelineDraft.publish(self.pipeline_draft)
-        
-        # call_json = self.azml(
-        #     'pipeline',
-        #     'publish-draft',
-        #     '--pipeline-draft-id',
-        #     self.pipeline_id,
-        #     json=True
-        # )
-        # self.published_id = call_json['Id']
 
     def _instance_published(self):
         self.published_instance = PublishedPipeline.get(
@@ -90,8 +83,14 @@ class Publisher(ConverterStep):
         ]
 
         if endpoints:
-            for pipeline in PipelineEndpoint.get(self.workspace_instance,name = self.azure_pipeline).list_pipelines():
-                for schedule in Schedule.get_schedules_for_pipeline_id(self.workspace_instance, pipeline.id):
+            for pipeline in PipelineEndpoint.get(
+                self.workspace_instance,
+                name=self.azure_pipeline
+            ).list_pipelines():
+                for schedule in Schedule.get_schedules_for_pipeline_id(
+                    self.workspace_instance,
+                    pipeline.id
+                ):
                     schedule.disable()
                 pipeline.disable()
 
@@ -121,7 +120,7 @@ class Publisher(ConverterStep):
         if x is None:
             x = self.create_new_endpoint()
 
-        self.endpoint = (x) # type: ignore
+        self.endpoint = (x)
 
     def _instance_old_published(self):
         self.old_published_instance = self.endpoint.get_pipeline()
@@ -141,7 +140,6 @@ class Publisher(ConverterStep):
         self._publish_draft()
         self.find_or_create_endpoint()
         output = {'published_id': self.published_instance.id}
-        
         if self.just_created_endpoint:
             self.log('info', 'endpoint doesn\'t exist, creating it')
         else:
