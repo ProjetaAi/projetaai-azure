@@ -46,7 +46,7 @@ def configure_databricks_connect(
         spark.databricks.service.clusterId: {cluster_id}
         spark.databricks.service.orgId: {org_id}
         spark.databricks.service.port: {cluster_port}
-        spark.databricks.service.token: "kv::{value to look for in the keyvault}"
+        spark.databricks.service.token: "kv::{keyvault secret name}"
 
     Args:
         workspace (Workspace): Azure workspace.
@@ -58,7 +58,7 @@ def configure_databricks_connect(
         dot_db_connect_folder = dot_db_connect_folder or Path('/root')
         kv = Keyvault(workspace)
 
-        SPARK_CONFIG_FILE_PATH: ClassVar[str] =  str(
+        SPARK_CONFIG_FILE_PATH: ClassVar[str] = str(
             Path('conf') / 'base' / 'spark.yml'
         )
 

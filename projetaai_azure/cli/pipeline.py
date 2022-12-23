@@ -1,8 +1,6 @@
 """Pipeline management scripts."""
 from dataclasses import dataclass
-from typing import Any, List, get_args
-from pathlib import Path
-import os
+from typing import Any, List
 
 from kedro_projetaai.packing import suggestions
 from kedro_projetaai.utils.script import pipe
@@ -15,10 +13,7 @@ from projetaai_azure.converters.pipeline_converter import (Cleaner,
                                                            FolderPreparator,
                                                            PipelineConverter)
 from projetaai_azure.converters.publisher import Publisher
-from projetaai_azure.converters.scheduler import Scheduler, WeekDays
-from projetaai_azure.utils.iterable import unique
-
-from projetaai_azure.utils.io import readyml
+from projetaai_azure.converters.scheduler import Scheduler
 
 
 @dataclass
@@ -49,7 +44,8 @@ class CreateDraftInputs(BasicAzureMLSettingsReader):
             str: The experiment name.
         """
         return suggestions.get_experiment_name(
-            project=filled['project'], branch=filled.get('branch')  
+            project=filled['project'],
+            branch=filled.get('branch')
         )
 
     @staticmethod
@@ -137,7 +133,7 @@ class PublishDraftInputs(CreateDraftInputs):
     pass
 
 
-@PublishDraftInputs().click_command 
+@PublishDraftInputs().click_command
 def publish(**kwargs: Any):
     """Publishes an Azure pipeline."""
     pipe(
@@ -159,6 +155,7 @@ class SchedulePublishedInputs(CreateDraftInputs):
         experiment (str): AzureML experiment name
         workspace_instance (Workspace): the workspace instance
     """
+
     pass
     # @property
     # def argv_requirements(self) -> List[_ArgvSpecification]:
@@ -204,10 +201,8 @@ class SchedulePublishedInputs(CreateDraftInputs):
 @SchedulePublishedInputs().click_command
 def schedule(**kwargs: Any):
     """Schedules an Azure pipeline."""
-
     pipe(
         Authenticator,
         Scheduler,
         initial_dict=kwargs
     )
-                            

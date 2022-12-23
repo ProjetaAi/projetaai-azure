@@ -25,7 +25,8 @@ from azureml.core import Workspace
 from azureml.pipeline.core import Schedule, ScheduleRecurrence
 from azureml.pipeline.core import TimeZone
 from azureml.pipeline.core import (
-    PipelineEndpoint, Pipeline, 
+    PipelineEndpoint,
+    Pipeline,
 )
 
 
@@ -50,10 +51,10 @@ class Scheduler(ConverterStep):
             pipeline
     """
 
-    SCHEDULE_FILENAME: ClassVar[str] =  str(
+    SCHEDULE_FILENAME: ClassVar[str] = str(
         Path('conf') / 'base' / 'schedule.yml'
     )
-    
+
     TIMEOUT: ClassVar[int] = 3600
     AZ_MIN_DATE: ClassVar[str] = datetime.datetime(2000, 1, 1, 0, 0,
                                                    0).isoformat()
@@ -70,24 +71,23 @@ class Scheduler(ConverterStep):
 
     pipeline_published: Pipeline = field(init=False)
 
-
     old_published_id: str = None
     published_id: str = field(init=False)
     old_schedule_instance: Union[Schedule,
                                  None] = field(init=False, default=None)
-                        
+
     TEMPLATE_FILE_DICT = {
-         'Minute': '''
+        'Minute': '''
                 scheduler:
                     frequency: "Minute" # "Minute", "Hour", "Day", "Week", or "Month"
                     interval: "1"
                  ''',
-         'Hour': '''
+        'Hour': '''
                 scheduler:
                     frequency: "Minute" # "Minute", "Hour", "Day", "Week", or "Month"
                     interval: "1"
                  ''',
-         'Day': '''
+        'Day': '''
                 scheduler:
                     frequency: "Minute" # "Minute", "Hour", "Day", "Week", or "Month"
                     hours: "10,12,14,16,18,20,22" # For Day and Week you can specify a list of hours separated by comma
@@ -100,22 +100,21 @@ class Scheduler(ConverterStep):
                     hours: "10,12,14,16,18,20,22" # For Day and Week you can specify a list of hours separated by comma
                     minutes: "0" # For Day and Week you can specify a list of minutes separated by comma
                     week_days:  "Monday, Tuesday, Wednesday, Thursday, Friday, Saturday,Sunday" # For Day and Week you can specify a weekdays separated by comma
-                    interval: "1"    
+                    interval: "1"
                 ''',
         'Month': '''
                 scheduler:
                     frequency: "Minute" # "Minute", "Hour", "Day", "Week", or "Month"
                     interval: "1"
                  ''',
-       
     }
 
     LIST_OF_FIELDS = {
-        'Minute': ['frequency','interval'],
-        'Hour': ['frequency','interval'],
-        'Day':  ['frequency','hours','minutes','interval'],
-        'Week': ['frequency','hours','minutes','week_days','interval'],
-        'Month': ['frequency','interval'],
+        'Minute': ['frequency', 'interval'],
+        'Hour': ['frequency', 'interval'],
+        'Day': ['frequency', 'hours', 'minutes', 'interval'],
+        'Week': ['frequency', 'hours', 'minutes', 'week_days', 'interval'],
+        'Month': ['frequency', 'interval'],
     }
 
     def _fetch_published(self):
@@ -126,10 +125,9 @@ class Scheduler(ConverterStep):
                                             name=self.azure_pipeline)
             self.pipeline_published = endpoint.get_pipeline()
             self.published_id = self.pipeline_published.id
-            
+
         except Exception as e:
             raise RuntimeError('published pipeline not found') from e
-
 
     def _find_schedule(self):
         if self.old_published_id:
@@ -145,7 +143,10 @@ class Scheduler(ConverterStep):
         schedule.disable()
 
     def _disable_schedulers(self):
-        for scheduler in Schedule.get_schedules_for_pipeline_id(self.workspace_instance,self.published_id):
+        for scheduler in Schedule.get_schedules_for_pipeline_id(
+            self.workspace_instance,
+            self.published_id
+        ):
             scheduler.disable()
 
     def create_new_schedule(self):
@@ -153,51 +154,97 @@ class Scheduler(ConverterStep):
         yaml_file = readyml(self.SCHEDULE_FILENAME)
 
         frequency = yaml_file['scheduler']['frequency']
-        hours     = None
-        minutes   = None
+        hours = None
+        minutes = None
         week_days = None
-        interval  = None
+        interval = None
 
         if frequency == 'Minute':
             keys = list(yaml_file['scheduler'].keys())
             if keys == self.LIST_OF_FIELDS['Minute']:
                 interval = int(yaml_file['scheduler']['interval'])
             else:
-                raise Exception(f'File is not in the correct format\nWe are expecting:\n { self.TEMPLATE_FILE_DICT["Minute"]}')
+                raise Exception(
+                    f"""
+                    File is not in the correct format.
+                    We are expecting: { self.TEMPLATE_FILE_DICT["Minute"]}
+                    """
+                )
 
         if frequency == 'Hour':
             keys = list(yaml_file['scheduler'].keys())
             if keys == self.LIST_OF_FIELDS['Hour']:
                 interval = int(yaml_file['scheduler']['interval'])
             else:
-                raise Exception(f'File is not in the correct format\nWe are expecting:\n { self.TEMPLATE_FILE_DICT["Hour"]}')
+                raise Exception(
+                    f"""
+                    File is not in the correct format.
+                    We are expecting: { self.TEMPLATE_FILE_DICT["Hour"]}
+                    """
+                )
 
         if frequency == 'Day':
             keys = list(yaml_file['scheduler'].keys())
             if keys == self.LIST_OF_FIELDS['Day']:
-                hours     = [ int(_) for _ in yaml_file['scheduler']['hours'].split(',')]
-                minutes   = [ int(_) for _ in yaml_file['scheduler']['minutes'].split(',')]
-                interval = int(yaml_file['scheduler']['interval'])
+                hours = [
+                    int(_) for _ in
+                    yaml_file['scheduler']['hours'].split(',')
+                ]
+
+                minutes = [
+                    int(_) for _ in
+                    yaml_file['scheduler']['minutes'].split(',')
+                ]
+
+                interval = int(
+                    yaml_file['scheduler']['interval']
+                )
             else:
-                raise Exception(f'File is not in the correct format\nWe are expecting:\n { self.TEMPLATE_FILE_DICT["Day"]}')
+                raise Exception(
+                    f"""
+                    File is not in the correct format.
+                    We are expecting: { self.TEMPLATE_FILE_DICT["Day"]}
+                    """
+                )
 
         if frequency == 'Week':
             keys = list(yaml_file['scheduler'].keys())
             if keys == self.LIST_OF_FIELDS['Week']:
-                hours     = [ int(_) for _ in yaml_file['scheduler']['hours'].split(',')]
-                minutes   = [ int(_) for _ in yaml_file['scheduler']['minutes'].split(',')]
-                week_days  = list(yaml_file['scheduler']['week_days'].split(','))
+
+                hours = [
+                    int(_) for _ in
+                    yaml_file['scheduler']['hours'].split(',')
+                ]
+
+                minutes = [
+                    int(_) for _ in
+                    yaml_file['scheduler']['minutes'].split(',')
+                ]
+
+                week_days = list(
+                    yaml_file['scheduler']['week_days'].split(',')
+                )
+
                 interval = int(yaml_file['scheduler']['interval'])
             else:
-                raise Exception(f'File is not in the correct format\nWe are expecting:\n { self.TEMPLATE_FILE_DICT["Week"]}')
-        
+                raise Exception(
+                    f"""
+                    File is not in the correct format.
+                    We are expecting: { self.TEMPLATE_FILE_DICT["Week"]}
+                    """
+                )
+
         if frequency == 'Month':
             keys = list(yaml_file['scheduler'].keys())
             if keys == self.LIST_OF_FIELDS['Month']:
                 interval = int(yaml_file['scheduler']['interval'])
             else:
-                raise Exception(f'File is not in the correct format\nWe are expecting:\n { self.TEMPLATE_FILE_DICT["Hour"]}')
-            
+                raise Exception(
+                    f"""
+                    File is not in the correct format.
+                    We are expecting: { self.TEMPLATE_FILE_DICT["Hour"]}
+                    """
+                )
 
         recurrence = ScheduleRecurrence(
             frequency=frequency,
@@ -209,7 +256,7 @@ class Scheduler(ConverterStep):
             interval=interval,
             time_zone=TimeZone.UTC,
         )
-        
+
         Schedule.create(
             workspace=self.workspace_instance,
             pipeline_id=self.published_id,

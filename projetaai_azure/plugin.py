@@ -15,6 +15,7 @@ from projetaai_azure.cli.pipeline import (  # noqa: E402
 
 install_azml_cli()
 
+
 class AzureCLI(ProjetaAiCLIPlugin):
     """Azure commands for ProjetaAi."""
 
