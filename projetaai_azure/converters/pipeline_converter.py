@@ -382,9 +382,16 @@ class PipelineConverter(ConverterStep):
             self.workspace_instance,
             self.PIPELINE_FILENAME
         )
-        # variable not used
+
         pipeline_draft = PipelineDraft.create(
             workspace=self.workspace_instance,
+            pipeline=pipeline,
+            name=self.azure_pipeline,
+            experiment_name=self.experiment,
+            continue_on_step_failure=False
+        )
+
+        pipeline_draft.update(
             pipeline=pipeline,
             name=self.azure_pipeline,
             experiment_name=self.experiment,
