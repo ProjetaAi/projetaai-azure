@@ -9,6 +9,7 @@ Note:
 from __future__ import print_function, unicode_literals, annotations
 from dataclasses import dataclass, field
 import datetime
+from os.path import exists
 from pathlib import Path
 from typing import (
     ClassVar,
@@ -21,7 +22,7 @@ from typing import (
 from projetaai_azure.utils.io import readyml
 from projetaai_azure.converters.step import ConverterStep
 
-from azureml.core import Workspace
+from azureml.core import Workspace, Datastore
 from azureml.pipeline.core import Schedule, ScheduleRecurrence
 from azureml.pipeline.core import TimeZone
 from azureml.pipeline.core import (
@@ -51,8 +52,11 @@ class Scheduler(ConverterStep):
             pipeline
     """
 
-    SCHEDULE_FILENAME: ClassVar[str] = str(
-        Path('conf') / 'base' / 'schedule.yml'
+    TIMEBASED_SCHEDULE_FILENAME: ClassVar[str] = str(
+        Path('conf') / 'base' / 'timebased_schedule.yml'
+    )
+    CHANGEBASED_SCHEDULE_FILENAME: ClassVar[str] = str(
+        Path('conf') / 'base' / 'changebased_schedule.yml'
     )
 
     TIMEOUT: ClassVar[int] = 3600
@@ -149,9 +153,9 @@ class Scheduler(ConverterStep):
         ):
             scheduler.disable()
 
-    def create_new_schedule(self):
+    def create_new_timebased_schedule(self):
         """Creates a new schedule."""
-        yaml_file = readyml(self.SCHEDULE_FILENAME)
+        yaml_file = readyml(self.TIMEBASED_SCHEDULE_FILENAME)
 
         frequency = yaml_file['scheduler']['frequency']
         hours = None
@@ -269,6 +273,27 @@ class Scheduler(ConverterStep):
             wait_timeout=3600,
         )
 
+    def create_new_changebased_schedule(self):
+        yaml_file = readyml(self.CHANGEBASED_SCHEDULE_FILENAME)
+
+        datastore_name = yaml_file['scheduler']['datastore_name']
+        datastore_path = yaml_file['scheduler']['datastore_path']
+
+        datastore_object = Datastore(workspace=self.workspace_instance, name=datastore_name)
+
+        Schedule.create(
+            workspace=self.workspace_instance,
+            datastore=datastore_object,
+            path_on_datastore=datastore_path,
+            pipeline_id=self.published_id,
+            name=self.azure_pipeline,
+            experiment_name=self.experiment,
+            description=self.description,
+            continue_on_step_failure=False,
+            wait_for_provisioning=True,
+            wait_timeout=3600,
+        )
+
     def _forward_schedule(self):
         schedule = cast(Schedule, self.old_schedule_instance)
         Schedule.create(
@@ -299,4 +324,12 @@ class Scheduler(ConverterStep):
         # else:
         self._disable_schedulers()
         self.log('info', 'creating a new schedule')
-        self.create_new_schedule()
+
+        if exists(self.TIMEBASED_SCHEDULE_FILENAME) and exists(self.CHANGEBASED_SCHEDULE_FILENAME):
+            self.log('error', 'You have files for both time-based and change-based schedule. You can only choose one type of scheduling')
+        elif exists(self.TIMEBASED_SCHEDULE_FILENAME):
+            self.create_new_timebased_schedule()
+        elif exists(self.CHANGEBASED_SCHEDULE_FILENAME):
+            self.create_new_changebased_schedule()
+        else:
+            self.log('error', 'You do not have a schedule file. Cannot operate')
