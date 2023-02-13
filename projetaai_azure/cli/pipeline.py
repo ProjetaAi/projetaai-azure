@@ -139,7 +139,6 @@ def publish(**kwargs: Any):
     pipe(
         Authenticator,
         Publisher,
-        Scheduler,
         initial_dict=kwargs
     )
 
