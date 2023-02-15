@@ -53,7 +53,7 @@ class Scheduler(ConverterStep):
     """
 
     TIMEBASED_SCHEDULE_FILENAME: ClassVar[str] = str(
-        Path('conf') / 'base' / 'timebased_schedule.yml'
+        Path('conf') / 'base' / 'schedule.yml'
     )
     CHANGEBASED_SCHEDULE_FILENAME: ClassVar[str] = str(
         Path('conf') / 'base' / 'changebased_schedule.yml'
