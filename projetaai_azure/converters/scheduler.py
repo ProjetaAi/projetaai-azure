@@ -154,7 +154,7 @@ class Scheduler(ConverterStep):
             scheduler.disable()
 
     def create_new_timebased_schedule(self):
-        """Creates a new schedule."""
+        """Creates a new time-based schedule."""
         yaml_file = readyml(self.TIMEBASED_SCHEDULE_FILENAME)
 
         frequency = yaml_file['scheduler']['frequency']
@@ -274,6 +274,7 @@ class Scheduler(ConverterStep):
         )
 
     def create_new_changebased_schedule(self):
+        """Creates a new change-based schedule."""
         yaml_file = readyml(self.CHANGEBASED_SCHEDULE_FILENAME)
 
         datastore_name = yaml_file['scheduler']['datastore_name']
