@@ -3,6 +3,11 @@ from typing import List
 import warnings
 from projetaai_azure.converters.setup import install_azml_cli
 from projetaai_azure.cli.credential import credential_create
+from projetaai_azure.cli.devops import devops_create_repo
+from projetaai_azure.cli.devops import devops_create_pipeline_cicd
+from projetaai_azure.cli.devops import parameters_ci_create
+
+
 warnings.filterwarnings("ignore",
                         category=DeprecationWarning)  # fixes azureml warnings
 
@@ -54,6 +59,33 @@ class AzureCLI(ProjetaAiCLIPlugin):
             Command: Job creation command
         """
         return create_job
+
+    @property
+    def repodevops(self) -> Command:
+        """DevOps Repo creation command.
+
+        Returns:
+            Command: DevOps Repo creation command
+        """
+        return devops_create_repo
+
+    @property
+    def pipelinedevops(self) -> Command:
+        """DevOps Pipeline creation command.
+
+        Returns:
+            Command: DevOps Pipeline creation command
+        """
+        return devops_create_pipeline_cicd
+
+    @property
+    def parametersdevops(self) -> Command:
+        """File parameters_ci.yml creation command, used in DevOps commands.
+
+        Returns:
+            Command:File parameters_ci.yml creation command, used in DevOps commands.
+        """
+        return parameters_ci_create
 
 
 AZURE_STARTERS_REPO = ('git+https://github.com/ProjetaAi/'
