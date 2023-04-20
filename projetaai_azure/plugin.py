@@ -62,19 +62,19 @@ class AzureCLI(ProjetaAiCLIPlugin):
 
     @property
     def repodevops(self) -> Command:
-        """DevOps Repo creation command.
+        """Create DevOps Repo command.
 
         Returns:
-            Command: DevOps Repo creation command
+            Command: Create DevOps Repo command
         """
         return devops_create_repo
 
     @property
     def pipelinedevops(self) -> Command:
-        """DevOps Pipeline creation command.
+        """Create DevOps Pipeline command.
 
         Returns:
-            Command: DevOps Pipeline creation command
+            Command: Create DevOps Pipeline command
         """
         return devops_create_pipeline_cicd
 

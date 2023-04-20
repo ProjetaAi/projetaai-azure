@@ -7,21 +7,24 @@ from projetaai_azure.utils.constants import CWD
 from kedro_projetaai import __version__ as version
 
 LOGO = rf"""
- __   __ __    _ _ __ _ _ _ _ __ _ 
-|  \_/  | |   |  __  |     |  _ __|
-| |\ /| | |   | |  | |  _ _|_|__ _    
-| | V | | |_,_| |__| | |    __ _| | 
-|_|   |_|_,_,_|_,_,_,|_|   |_,_,_,|
+    __   __ __    _ _ __ _ _ _ _ __ _
+    |  \_/  | |   |  __  |     |  _ __|
+    | |\ /| | |   | |  | |  _ _|_|__ _
+    | | V | | |_,_| |__| | |    __ _| |
+    |_|   |_|_,_,_|_,_,_,|_|   |_,_,_,|
 
-v{version}
+    v{version}
 """
 
 
 @click.command
 @click.version_option(version, "--version", "-V", help="Show version and exit")
 def parameters_ci_create():
-    """Creates conf/base/parameters_ci.yml, used in commands to automate Azure Dev Ops Management."""
+    """Creates conf/base/parameters_ci.yml, used in commands to automate Azure Dev Ops Management.
 
+    Args:
+        None
+    """
     filepath = CWD / 'conf' / 'base' / 'parameters_ci.yml'
 
     click.secho(LOGO, fg="green")
@@ -46,7 +49,7 @@ def parameters_ci_create():
 
 @click.command
 def devops_create_repo() -> None:
-    """Automates repository creation in Azure DevOps. You need to be log in azure with "az login" in terminal
+    """Automates repository creation in Azure DevOps.
 
     Args:
         None
@@ -74,13 +77,11 @@ def devops_create_repo() -> None:
 
 @click.command
 def devops_create_pipeline_cicd() -> None:
-    """Automates pipeline creation in Azure DevOps
-       You need to be log in azure with "az login" in terminal
+    """Automates pipeline creation in Azure DevOps.
 
     Args:
         None
     """
-
     if os.path.exists(CWD / 'conf' / 'base' / 'parameters_ci.yml'):
 
         parameters = readyml(CWD / 'conf' / 'base' / 'parameters_ci.yml')
