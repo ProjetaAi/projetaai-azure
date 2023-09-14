@@ -91,7 +91,7 @@ class EnvironmentCreator(ConverterStep):
         with open(self._requirements_filepath, 'r') as f:
             reqs = list(requirements.parse(f))
 
-        return {req.name: req for req in reqs}
+        return {req.line: req for req in reqs}
 
     @property
     def requirements_lines(self) -> List[str]:
