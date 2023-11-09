@@ -151,18 +151,17 @@ class Scheduler(ConverterStep):
 
     def create_new_schedule(self):
         """Creates a new schedule."""
-        yaml_file = readyml(self.SCHEDULE_FILENAME)
 
-        frequency = yaml_file['scheduler']['frequency']
+        frequency = self.yaml_file['scheduler']['frequency']
         hours = None
         minutes = None
         week_days = None
         interval = None
 
         if frequency == 'Minute':
-            keys = list(yaml_file['scheduler'].keys())
+            keys = list(self.yaml_file['scheduler'].keys())
             if keys == self.LIST_OF_FIELDS['Minute']:
-                interval = int(yaml_file['scheduler']['interval'])
+                interval = int(self.yaml_file['scheduler']['interval'])
             else:
                 raise Exception(
                     f"""
@@ -172,9 +171,9 @@ class Scheduler(ConverterStep):
                 )
 
         if frequency == 'Hour':
-            keys = list(yaml_file['scheduler'].keys())
+            keys = list(self.yaml_file['scheduler'].keys())
             if keys == self.LIST_OF_FIELDS['Hour']:
-                interval = int(yaml_file['scheduler']['interval'])
+                interval = int(self.yaml_file['scheduler']['interval'])
             else:
                 raise Exception(
                     f"""
@@ -184,20 +183,20 @@ class Scheduler(ConverterStep):
                 )
 
         if frequency == 'Day':
-            keys = list(yaml_file['scheduler'].keys())
+            keys = list(self.yaml_file['scheduler'].keys())
             if keys == self.LIST_OF_FIELDS['Day']:
                 hours = [
                     int(_) for _ in
-                    yaml_file['scheduler']['hours'].split(',')
+                    self.yaml_file['scheduler']['hours'].split(',')
                 ]
 
                 minutes = [
                     int(_) for _ in
-                    yaml_file['scheduler']['minutes'].split(',')
+                    self.yaml_file['scheduler']['minutes'].split(',')
                 ]
 
                 interval = int(
-                    yaml_file['scheduler']['interval']
+                    self.yaml_file['scheduler']['interval']
                 )
             else:
                 raise Exception(
@@ -208,24 +207,24 @@ class Scheduler(ConverterStep):
                 )
 
         if frequency == 'Week':
-            keys = list(yaml_file['scheduler'].keys())
+            keys = list(self.yaml_file['scheduler'].keys())
             if keys == self.LIST_OF_FIELDS['Week']:
 
                 hours = [
                     int(_) for _ in
-                    yaml_file['scheduler']['hours'].split(',')
+                    self.yaml_file['scheduler']['hours'].split(',')
                 ]
 
                 minutes = [
                     int(_) for _ in
-                    yaml_file['scheduler']['minutes'].split(',')
+                    self.yaml_file['scheduler']['minutes'].split(',')
                 ]
 
                 week_days = list(
-                    yaml_file['scheduler']['week_days'].split(',')
+                    self.yaml_file['scheduler']['week_days'].split(',')
                 )
 
-                interval = int(yaml_file['scheduler']['interval'])
+                interval = int(self.yaml_file['scheduler']['interval'])
             else:
                 raise Exception(
                     f"""
@@ -235,9 +234,9 @@ class Scheduler(ConverterStep):
                 )
 
         if frequency == 'Month':
-            keys = list(yaml_file['scheduler'].keys())
+            keys = list(self.yaml_file['scheduler'].keys())
             if keys == self.LIST_OF_FIELDS['Month']:
-                interval = int(yaml_file['scheduler']['interval'])
+                interval = int(self.yaml_file['scheduler']['interval'])
             else:
                 raise Exception(
                     f"""
@@ -282,21 +281,23 @@ class Scheduler(ConverterStep):
             continue_on_step_failure=schedule.continue_on_step_failure,
         )
 
+    def read_schedule_yml(self):
+        try:
+            self.yaml_file = readyml(self.SCHEDULE_FILENAME)
+        except FileNotFoundError:
+            self.log('info', 'schedule.yml not found, skipping step.')
+            self.yaml_file = None
+        return
+
     def run(self):
         """Schedules a published pipeline to run on a schedule."""
+        self.read_schedule_yml()
+        if self.yaml_file is None:
+            return
         self._fetch_published()
-        # self._find_schedule()
-
-        # print(self.published_id, self.old_schedule_instance)
-
-        # if self.old_schedule_instance:
-        #     if self.hour:
-        #         self.log('info', 'an old schedule exists, disabling it')
-        #     else:
-        #         self.log('info', 'schedule already exists, forwarding it')
-        #         self._forward_schedule()
-        #     self._disable_old_schedule()
-        # else:
         self._disable_schedulers()
         self.log('info', 'creating a new schedule')
         self.create_new_schedule()
+
+
+
