@@ -171,16 +171,6 @@ class EnvironmentCreator(ConverterStep):
         return 'openjdk-8-jre'
 
     @property
-    def docker_databricks_connect(self) -> str:
-        """Returns databricks-connect version to be installed.
-
-        Returns:
-            str: databricks-connect version compatible with your databricks
-                cluster.
-        """
-        return 'databricks-connect==9.1.24'
-
-    @property
     def docker_azure_cli_extension(self) -> str:
         """Return azure cli and extension needed.
 
