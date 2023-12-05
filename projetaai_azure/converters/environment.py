@@ -203,7 +203,6 @@ class EnvironmentCreator(ConverterStep):
                 'USER root:root',
                 'RUN mkdir -p /usr/share/man/man1',
                 f'RUN apt-get update && apt-get install -y {self.docker_jdk}',
-                f'RUN pip install {self.docker_databricks_connect}',
                 f'RUN export JAVA_HOME={self.docker_java_home}'
             ]
 
